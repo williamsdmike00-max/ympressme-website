@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom T-Shirt Printing | YMPRESSME</title>
+  <meta name="description" content="Order custom printed t-shirts, hoodies, tanks, and more. Upload your design, pick your garment and quantity, and get an instant price. Bulk discounts from 12+ pieces." />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ====== NAVIGATION ====== -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
+        <img src="assets/logo.png" alt="YMPRESSME Logo" />
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="tshirts.html" class="active">T-Shirts</a></li>
+        <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+        <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li class="nav-cta"><a href="contact.html">Get a Quote</a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="navMobile">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="tshirts.html">Custom T-Shirts</a></li>
+      <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+      <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+    </ul>
+  </div>
+
+  <main>
+
+    <!-- ====== PAGE HERO ====== -->
+    <div class="page-hero">
+      <div class="container">
+        <h1>Custom T-Shirt Printing</h1>
+        <p>Premium garments, full-color prints, bulk discounts — your design, our craft.</p>
+      </div>
+    </div>
+
+    <!-- ====== CONFIGURATOR + PRICING ====== -->
+    <section>
+      <div class="container">
+
+        <div style="display:grid;grid-template-columns:1fr;gap:2rem;" id="shirtConfigGrid">
+
+          <!-- Left: Configurator -->
+          <div>
+            <div class="alert alert-info">
+              <span class="alert-icon" aria-hidden="true">ℹ️</span>
+              <span>Use the configurator to get an instant price estimate, then scroll down to submit your quote request.</span>
+            </div>
+
+            <!-- Garment Type -->
+            <div class="option-group mt-3">
+              <label id="garmentLabel">Garment Type</label>
+              <div class="option-chips" role="group" aria-labelledby="garmentLabel">
+                <button class="chip active" data-garment="gildan5000"  onclick="selectGarment(this)" type="button">Gildan Tee</button>
+                <button class="chip"        data-garment="bella3001"   onclick="selectGarment(this)" type="button">Premium Tee</button>
+                <button class="chip"        data-garment="gildan18500" onclick="selectGarment(this)" type="button">Hoodie</button>
+                <button class="chip"        data-garment="gildan2200"  onclick="selectGarment(this)" type="button">Tank Top</button>
+                <button class="chip"        data-garment="gildan5400"  onclick="selectGarment(this)" type="button">Heavy Tee</button>
+              </div>
+              <p class="form-hint" id="garmentDesc">Gildan 5000 — Classic fit, 100% cotton. Comfortable everyday tee.</p>
+            </div>
+
+            <!-- Shirt Size -->
+            <div class="option-group">
+              <label id="sizeLabel">Shirt Size(s)</label>
+              <div class="option-chips" role="group" aria-labelledby="sizeLabel">
+                <button class="chip active" type="button">S</button>
+                <button class="chip active" type="button">M</button>
+                <button class="chip active" type="button">L</button>
+                <button class="chip active" type="button">XL</button>
+                <button class="chip active" type="button">2XL</button>
+                <button class="chip"        type="button">3XL</button>
+                <button class="chip"        type="button">4XL</button>
+              </div>
+              <p class="form-hint">3XL and 4XL add $2–$3 per shirt.</p>
+            </div>
+
+            <!-- Print Location -->
+            <div class="option-group">
+              <label id="printLabel">Print Location</label>
+              <div class="option-chips" role="group" aria-labelledby="printLabel">
+                <button class="chip active" data-loc="front"      onclick="selectChipGroup(this,'printLabel')" type="button">Front</button>
+                <button class="chip"        data-loc="back"       onclick="selectChipGroup(this,'printLabel')" type="button">Back</button>
+                <button class="chip"        data-loc="front-back" onclick="selectChipGroup(this,'printLabel')" type="button">Front + Back</button>
+                <button class="chip"        data-loc="sleeve"     onclick="selectChipGroup(this,'printLabel')" type="button">Sleeve</button>
+              </div>
+            </div>
+
+            <!-- Pocket Print Add-on -->
+            <div class="option-group">
+              <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+                <input type="checkbox" id="shirtPocket" style="width:18px;height:18px;accent-color:var(--primary);" />
+                Add Pocket Print (+$2.00/shirt)
+              </label>
+            </div>
+
+            <!-- Quantity -->
+            <div class="option-group">
+              <label for="shirtQtyWrap">Quantity</label>
+              <div id="shirtQtyWrap">
+                <div class="qty-wrap">
+                  <button class="qty-btn" data-dir="-1" aria-label="Decrease quantity" type="button">−</button>
+                  <input class="qty-input" type="number" id="shirtQty" value="24" min="1" max="9999" aria-label="Quantity" />
+                  <button class="qty-btn" data-dir="1" aria-label="Increase quantity" type="button">+</button>
+                </div>
+              </div>
+              <p class="form-hint">Minimum order: 1 piece. Bulk discounts start at 12.</p>
+            </div>
+
+            <!-- Select element (hidden, synced for form submission) -->
+            <select id="shirtType" class="hidden" aria-hidden="true">
+              <option value="gildan5000"  selected>Gildan 5000 (Standard Tee)</option>
+              <option value="bella3001"           >Bella+Canvas 3001 (Premium Tee)</option>
+              <option value="gildan18500"          >Gildan 18500 (Heavy Blend Hoodie)</option>
+              <option value="gildan2200"           >Gildan 2200 (Tank Top)</option>
+              <option value="gildan5400"           >Gildan 5400 (Heavy Tee)</option>
+            </select>
+          </div>
+
+          <!-- Right: Price Display -->
+          <div>
+            <div class="price-display" id="shirtPriceDisplay" aria-live="polite" aria-label="Price estimate">
+              <div class="price-label">Estimated Price Per Shirt</div>
+              <div class="price-amount" id="shirtUnitPrice">$11.48</div>
+              <div class="price-unit">per shirt</div>
+              <div class="price-tier-badge" id="shirtTierBadge">24–47 pcs pricing</div>
+              <div style="font-size:0.8rem;opacity:0.75;margin-top:0.5rem;" id="shirtSavings">You save $2.52 vs. single-piece price</div>
+            </div>
+
+            <div class="price-breakdown">
+              <div class="pbd-row"><span>Quantity</span><span id="sbd-qty">24 shirts</span></div>
+              <div class="pbd-row"><span>Price per shirt</span><span id="sbd-unit">$11.48</span></div>
+              <div class="pbd-row"><span>Quantity savings</span><span id="sbd-save" style="color:var(--success);">–$60.48</span></div>
+              <div class="pbd-row"><span>Estimated Total</span><span id="sbd-total">$275.52</span></div>
+            </div>
+
+            <!-- Bulk discount table -->
+            <div style="margin-top:1.5rem;overflow-x:auto;">
+              <table class="pricing-table" aria-label="T-shirt bulk discount tiers">
+                <thead>
+                  <tr>
+                    <th scope="col">Qty Range</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Gildan Tee</th>
+                    <th scope="col">Premium Tee</th>
+                    <th scope="col">Hoodie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>1–11 pcs</td><td>—</td><td>$14.00</td><td>$21.00</td><td>$30.00</td></tr>
+                  <tr><td>12–23 pcs</td><td>12% off</td><td>$12.32</td><td>$18.48</td><td>$26.40</td></tr>
+                  <tr><td>24–47 pcs</td><td>20% off</td><td>$11.20</td><td>$16.80</td><td>$24.00</td></tr>
+                  <tr><td>48–71 pcs</td><td>28% off</td><td>$10.08</td><td>$15.12</td><td>$21.60</td></tr>
+                  <tr><td class="best">72+ pcs</td><td class="best">35% off</td><td class="best">$9.10</td><td class="best">$13.65</td><td class="best">$19.50</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== DESIGN REQUIREMENTS ====== -->
+    <section class="bg-light">
+      <div class="container">
+        <div class="section-header fade-in">
+          <span class="section-label">Artwork Specs</span>
+          <h2>Design File Requirements</h2>
+          <p>Follow these guidelines for the best possible print quality.</p>
+        </div>
+
+        <div class="grid-3 fade-in">
+          <div class="card">
+            <div class="card-icon" aria-hidden="true">🖼️</div>
+            <h4>File Formats</h4>
+            <p style="color:var(--gray);font-size:0.9rem;margin:0;">
+              <strong>Preferred:</strong> PNG with transparent background<br>
+              <strong>Also accepted:</strong> PDF, SVG<br>
+              <em>Avoid JPEG for designs with text or transparency.</em>
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-icon" aria-hidden="true">🔍</div>
+            <h4>Resolution</h4>
+            <p style="color:var(--gray);font-size:0.9rem;margin:0;">
+              <strong>Minimum:</strong> 300 DPI at print size<br>
+              <strong>Recommended:</strong> 300–600 DPI<br>
+              <em>Low-res files will produce blurry results.</em>
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-icon" aria-hidden="true">📐</div>
+            <h4>Dimensions</h4>
+            <p style="color:var(--gray);font-size:0.9rem;margin:0;">
+              <strong>Full front:</strong> Up to 12" × 16"<br>
+              <strong>Pocket:</strong> Up to 4" × 4"<br>
+              <em>Provide art at the exact final print size.</em>
+            </p>
+          </div>
+        </div>
+
+        <div class="alert alert-warning mt-4 fade-in" style="max-width:700px;margin:2rem auto 0;">
+          <span class="alert-icon" aria-hidden="true">⚠️</span>
+          <span><strong>Transparent Background Required:</strong> All designs should have a transparent background (not white). White backgrounds will print as white on your garment.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== QUOTE FORM ====== -->
+    <section id="quote" aria-labelledby="quoteHeading">
+      <div class="container">
+        <div class="section-header fade-in">
+          <span class="section-label">Order Now</span>
+          <h2 id="quoteHeading">Submit Your <span class="text-accent">T-Shirt Quote</span></h2>
+          <p>Fill out the form below. We'll review your artwork and send a confirmed quote within a few hours.</p>
+        </div>
+
+        <div style="max-width:720px;margin:0 auto;" class="fade-in">
+
+          <!-- Formspree form — replace YOUR_FORM_ID with your actual Formspree endpoint -->
+          <form
+            id="shirtQuoteForm"
+            action="https://formspree.io/f/YOUR_FORM_ID"
+            method="POST"
+            enctype="multipart/form-data"
+            novalidate
+          >
+            <!-- Hidden fields for product context -->
+            <input type="hidden" name="Product Type" value="Custom T-Shirt Printing" />
+            <input type="hidden" name="_subject" value="New T-Shirt Quote Request — YMPRESSME" />
+            <input type="hidden" name="_replyto" id="replyToField" value="" />
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name <span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="firstName" name="First Name" class="form-control" placeholder="Jane" required autocomplete="given-name" />
+                <span class="form-error">Please enter your first name.</span>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name <span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="lastName" name="Last Name" class="form-control" placeholder="Smith" required autocomplete="family-name" />
+                <span class="form-error">Please enter your last name.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email Address <span class="req" aria-hidden="true">*</span></label>
+                <input type="email" id="email" name="Email" class="form-control" placeholder="jane@example.com" required autocomplete="email" />
+                <span class="form-error">Please enter a valid email address.</span>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="Phone" class="form-control" placeholder="(555) 123-4567" autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="garmentType">Garment Type <span class="req" aria-hidden="true">*</span></label>
+                <select id="garmentType" name="Garment Type" class="form-control" required>
+                  <option value="">Select garment…</option>
+                  <option value="Gildan 5000 Standard Tee">Gildan 5000 Standard Tee</option>
+                  <option value="Bella+Canvas 3001 Premium Tee">Bella+Canvas 3001 Premium Tee</option>
+                  <option value="Gildan 18500 Hoodie">Gildan 18500 Hoodie</option>
+                  <option value="Gildan 2200 Tank Top">Gildan 2200 Tank Top</option>
+                  <option value="Gildan 5400 Heavy Tee">Gildan 5400 Heavy Tee</option>
+                </select>
+                <span class="form-error">Please select a garment type.</span>
+              </div>
+              <div class="form-group">
+                <label for="totalQty">Total Quantity <span class="req" aria-hidden="true">*</span></label>
+                <input type="number" id="totalQty" name="Total Quantity" class="form-control" placeholder="e.g. 24" min="1" required />
+                <span class="form-error">Please enter the total quantity.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sizeBreakdown">Size Breakdown <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="sizeBreakdown" name="Size Breakdown" class="form-control" placeholder="e.g. S×4, M×8, L×8, XL×4" required />
+              <p class="form-hint">List each size and how many of each you need.</p>
+              <span class="form-error">Please provide a size breakdown.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="printLocation">Print Location</label>
+              <select id="printLocation" name="Print Location" class="form-control">
+                <option value="Front only">Front only</option>
+                <option value="Back only">Back only</option>
+                <option value="Front and Back">Front and Back</option>
+                <option value="Front + Pocket">Front + Pocket</option>
+                <option value="Sleeve">Sleeve</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="shirtColors">Shirt Color(s)</label>
+              <input type="text" id="shirtColors" name="Shirt Colors" class="form-control" placeholder="e.g. Black, White, Navy" />
+            </div>
+
+            <!-- File Upload -->
+            <div class="form-group">
+              <label>Upload Your Artwork <span class="req" aria-hidden="true">*</span></label>
+              <div class="upload-area" id="shirtUploadArea" role="button" aria-label="Upload design file">
+                <input type="file" id="shirtFileInput" name="Artwork File" accept=".png,.jpg,.jpeg,.svg,.pdf" aria-label="Select design file" required />
+                <span class="upload-icon" aria-hidden="true">🖼️</span>
+                <h4>Drop your file here or click to browse</h4>
+                <p>PNG, JPG, SVG, or PDF — Max 50MB</p>
+                <span class="upload-formats">300 DPI · Transparent Background · RGB Color</span>
+              </div>
+              <div class="upload-preview" id="shirtUploadPreview">
+                <img src="" alt="Preview of uploaded design" />
+                <div class="upload-preview-info">
+                  <strong></strong>
+                  <span></span>
+                </div>
+                <button class="upload-remove" type="button" aria-label="Remove uploaded file">×</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="shirtNotes">Additional Notes</label>
+              <textarea id="shirtNotes" name="Additional Notes" class="form-control" placeholder="Any special instructions, colors, deadlines, or questions…"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="hearAbout">How did you hear about us?</label>
+              <select id="hearAbout" name="How did you hear about us" class="form-control">
+                <option value="">Select…</option>
+                <option>Google Search</option>
+                <option>Instagram</option>
+                <option>Facebook</option>
+                <option>Word of Mouth</option>
+                <option>TikTok</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full" id="shirtSubmitBtn">
+              Submit Quote Request
+            </button>
+
+            <p style="text-align:center;color:var(--gray);font-size:0.82rem;margin-top:0.75rem;">
+              We'll respond within 2–4 business hours. No payment required to get a quote.
+            </p>
+
+            <div id="shirtFormSuccess" class="alert alert-success hidden" role="alert">
+              ✅ <strong>Quote submitted!</strong> We'll be in touch within a few hours. Check your email for confirmation.
+            </div>
+            <div id="shirtFormError" class="alert alert-warning hidden" role="alert">
+              ❌ Something went wrong. Please try again or email us directly at <a href="mailto:hello@ympressme.com">hello@ympressme.com</a>.
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logo.png" alt="YMPRESSME" />
+          <p>"Because you look so good when we do!"</p>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="tshirts.html">Custom T-Shirts</a></li>
+            <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+            <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="footer-contact-item"><span class="fci-icon">📧</span><a href="mailto:hello@ympressme.com">hello@ympressme.com</a></div>
+          <div class="footer-contact-item"><span class="fci-icon">📱</span><a href="tel:+15551234567">(555) 123-4567</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/pricing.js"></script>
+  <script src="js/upload.js"></script>
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    /* ---- Sync configurator chips to hidden select ---- */
+    const garmentDescs = {
+      gildan5000:   'Gildan 5000 — Classic fit, 100% cotton. Comfortable everyday tee.',
+      bella3001:    'Bella+Canvas 3001 — Airlume combed ring-spun cotton. Super soft & fitted.',
+      gildan18500:  'Gildan 18500 — Heavy-blend fleece hoodie. Kangaroo pocket, drawstring.',
+      gildan2200:   'Gildan 2200 — Ultra cotton tank top. Great for summer & layering.',
+      gildan5400:   'Gildan 5400 — Heavyweight 100% cotton. Extra durable for workwear.',
+    };
+
+    window.selectGarment = function (btn) {
+      document.querySelectorAll('[data-garment]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      const key = btn.dataset.garment;
+      document.getElementById('shirtType').value = key;
+      document.getElementById('garmentDesc').textContent = garmentDescs[key] || '';
+      initShirtCalculator();
+    };
+
+    window.selectChipGroup = function (btn, groupLabel) {
+      const group = btn.closest('[role="group"]');
+      if (!group) return;
+      group.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+    };
+
+    /* ---- Stepper ---- */
+    initStepper('shirtQtyWrap', function (val) {
+      document.getElementById('shirtQty').value = val;
+      initShirtCalculator();
+    });
+
+    /* ---- Pocket checkbox ---- */
+    document.getElementById('shirtPocket').addEventListener('change', initShirtCalculator);
+
+    /* ---- Init pricing ---- */
+    initShirtCalculator();
+
+    /* ---- Upload ---- */
+    initUpload('shirtUploadArea', 'shirtUploadPreview', 'shirtFileInput');
+
+    /* ---- Grid responsive ---- */
+    (function () {
+      const grid = document.getElementById('shirtConfigGrid');
+      function resize() {
+        grid.style.gridTemplateColumns = window.innerWidth >= 900 ? '1fr 380px' : '1fr';
+      }
+      resize();
+      window.addEventListener('resize', resize);
+    })();
+
+    /* ---- Sync email for reply-to ---- */
+    document.getElementById('email').addEventListener('input', function () {
+      document.getElementById('replyToField').value = this.value;
+    });
+
+    /* ---- Form submission ---- */
+    const shirtForm = document.getElementById('shirtQuoteForm');
+    shirtForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Basic validation
+      let valid = true;
+      shirtForm.querySelectorAll('[required]').forEach(function (field) {
+        if (!field.value.trim()) {
+          field.classList.add('invalid');
+          valid = false;
+        } else {
+          field.classList.remove('invalid');
+        }
+      });
+      if (!valid) {
+        showToast('Please fill in all required fields.', 'error');
+        shirtForm.querySelector('.invalid') && shirtForm.querySelector('.invalid').focus();
+        return;
+      }
+
+      const btn = document.getElementById('shirtSubmitBtn');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+
+      try {
+        const data = new FormData(shirtForm);
+        const res  = await fetch(shirtForm.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
+        if (res.ok) {
+          document.getElementById('shirtFormSuccess').classList.remove('hidden');
+          document.getElementById('shirtFormError').classList.add('hidden');
+          shirtForm.reset();
+          document.getElementById('shirtUploadPreview').classList.remove('show');
+          showToast('Quote submitted! We\'ll be in touch soon.', 'success');
+        } else {
+          throw new Error('Form submission failed');
+        }
+      } catch (err) {
+        document.getElementById('shirtFormError').classList.remove('hidden');
+        showToast('Submission failed. Please try again.', 'error');
+      } finally {
+        btn.textContent = 'Submit Quote Request';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
