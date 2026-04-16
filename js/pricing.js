@@ -1,92 +1,68 @@
 /**
  * YMPRESSME — pricing.js
- * Dynamic pricing calculator for DTF transfers and custom t-shirts.
- * All prices based on competitive market research (Transfer Superstars,
- * The Transfer Store, STAHLS) and standard POD industry tiers.
+ * Updated pricing based on client-provided rate sheet.
+ *
+ * DTF Transfers: Flat price per transfer by inch size (largest dimension)
+ * T-Shirts:      Tiered production price per shirt by quantity
+ * Personalization: Names $3.00 | Numbers $2.00 each
  */
 
 /* ================================================================
-   DTF SINGLE-SIZE TRANSFER PRICING
-   Tiers: 1-5 | 6-11 | 12-23 | 24-47 | 48-99 | 100+
+   DTF INDIVIDUAL PRINT PRICING
+   Flat price per transfer — priced by size (largest dimension in inches)
    ================================================================ */
 
-const DTF_SIZES = {
-  '4x4': {
-    label: '4" × 4" (Small / Pocket)',
-    pricePerUnit: [2.50, 2.00, 1.75, 1.50, 1.25, 1.00],
-    sqIn: 16,
-  },
-  '4x12': {
-    label: '4" × 12" (Sleeve / Long)',
-    pricePerUnit: [3.00, 2.50, 2.00, 1.75, 1.50, 1.25],
-    sqIn: 48,
-  },
-  '8x8': {
-    label: '8" × 8" (Medium)',
-    pricePerUnit: [3.75, 3.25, 2.75, 2.25, 2.00, 1.75],
-    sqIn: 64,
-  },
-  '11x15': {
-    label: '11" × 15" (Full Front)',
-    pricePerUnit: [5.50, 5.00, 4.50, 4.00, 3.50, 3.00],
-    sqIn: 165,
-  },
-  '12x16': {
-    label: '12" × 16" (XL Front)',
-    pricePerUnit: [6.50, 6.00, 5.50, 5.00, 4.50, 4.00],
-    sqIn: 192,
-  },
-  '13x19': {
-    label: '13" × 19" (Oversized)',
-    pricePerUnit: [7.50, 7.00, 6.50, 6.00, 5.50, 5.00],
-    sqIn: 247,
-  },
-};
-
-const QUANTITY_TIERS = [
-  { min: 1,   max: 5,    label: '1–5 pcs' },
-  { min: 6,   max: 11,   label: '6–11 pcs' },
-  { min: 12,  max: 23,   label: '12–23 pcs' },
-  { min: 24,  max: 47,   label: '24–47 pcs' },
-  { min: 48,  max: 99,   label: '48–99 pcs' },
-  { min: 100, max: Infinity, label: '100+ pcs' },
+const DTF_PRICES = [
+  { key: '1.5',  label: '1.5"',  price: 1.00 },
+  { key: '2',    label: '2"',    price: 1.25 },
+  { key: '3',    label: '3"',    price: 1.75 },
+  { key: '4',    label: '4"',    price: 2.00 },
+  { key: '5',    label: '5"',    price: 2.00 },
+  { key: '8',    label: '8"',    price: 3.25 },
+  { key: '9',    label: '9"',    price: 3.75 },
+  { key: '10',   label: '10"',   price: 5.25 },
+  { key: '10.5', label: '10.5"', price: 5.25 },
+  { key: '11',   label: '11"',   price: 5.75 },
+  { key: '11.5', label: '11.5"', price: 6.25 },
+  { key: '12',   label: '12"',   price: 6.50 },
+  { key: '12.5', label: '12.5"', price: 6.50 },
+  { key: '13',   label: '13"',   price: 6.75 },
+  { key: '14',   label: '14"',   price: 7.25 },
+  { key: '15',   label: '15"',   price: 7.50 },
+  { key: '16',   label: '16"',   price: 7.75 },
+  { key: '17',   label: '17"',   price: 8.25 },
+  { key: '18',   label: '18"',   price: 8.50 },
 ];
 
 /**
- * Get the tier index for a given quantity
- * @param {number} qty
- * @returns {number} tier index 0-5
+ * Get price for a DTF transfer by size key
+ * @param {string} sizeKey
+ * @returns {number} price per transfer
  */
-function getDtfTierIndex(qty) {
-  for (let i = 0; i < QUANTITY_TIERS.length; i++) {
-    if (qty >= QUANTITY_TIERS[i].min && qty <= QUANTITY_TIERS[i].max) return i;
-  }
-  return QUANTITY_TIERS.length - 1;
+function getDtfPrice(sizeKey) {
+  const found = DTF_PRICES.find(function (s) { return s.key === sizeKey; });
+  return found ? found.price : 0;
 }
 
 /**
- * Calculate price for single-size DTF transfers
- * @param {string} sizeKey - key from DTF_SIZES
+ * Calculate DTF order total
+ * @param {string} sizeKey
  * @param {number} qty
- * @returns {{ unitPrice: number, total: number, tierIndex: number, tierLabel: string }}
+ * @returns {{ unitPrice, total, sizeLabel }}
  */
 function calcDtfPrice(sizeKey, qty) {
-  const size = DTF_SIZES[sizeKey];
-  if (!size || qty < 1) return null;
-  const tierIdx  = getDtfTierIndex(qty);
-  const unitPrice = size.pricePerUnit[tierIdx];
+  const found = DTF_PRICES.find(function (s) { return s.key === sizeKey; });
+  if (!found || qty < 1) return null;
   return {
-    unitPrice:  unitPrice,
-    total:      +(unitPrice * qty).toFixed(2),
-    tierIndex:  tierIdx,
-    tierLabel:  QUANTITY_TIERS[tierIdx].label,
-    sizeLabel:  size.label,
+    unitPrice:  found.price,
+    total:      +(found.price * qty).toFixed(2),
+    sizeLabel:  found.label,
   };
 }
 
 /* ================================================================
    GANG SHEET PRICING
-   Priced per sheet — customers pack as many designs as will fit.
+   Priced per sheet — pack as many designs as fit.
    ================================================================ */
 
 const GANG_SHEETS = {
@@ -95,16 +71,10 @@ const GANG_SHEETS = {
   '22x36': { label: '22" × 36"', price: 28.00, w: 22, h: 36 },
 };
 
-/**
- * Calculate gang sheet total
- * @param {string} sheetKey
- * @param {number} qty - number of sheets
- * @returns {{ sheetPrice: number, total: number }}
- */
 function calcGangSheetPrice(sheetKey, qty) {
   const sheet = GANG_SHEETS[sheetKey];
   if (!sheet || qty < 1) return null;
-  const discount = qty >= 10 ? 0.10 : qty >= 5 ? 0.05 : 0;
+  const discount   = qty >= 10 ? 0.10 : qty >= 5 ? 0.05 : 0;
   const sheetPrice = +(sheet.price * (1 - discount)).toFixed(2);
   return {
     sheetPrice: sheetPrice,
@@ -115,94 +85,114 @@ function calcGangSheetPrice(sheetKey, qty) {
 }
 
 /* ================================================================
-   CUSTOM T-SHIRT PRICING
+   T-SHIRT PRODUCTION PRICING
+   Flat price per shirt by quantity tier.
+   Size upcharges: +$1 per X over XL (2XL=+$1, 3XL=+$2 … 7XL=+$6)
    ================================================================ */
 
-const SHIRT_TYPES = {
-  'gildan5000':    { label: 'Gildan 5000 (Standard Tee)',        basePrice: 14.00 },
-  'bella3001':     { label: 'Bella+Canvas 3001 (Premium Tee)',   basePrice: 21.00 },
-  'gildan18500':   { label: 'Gildan 18500 (Heavy Blend Hoodie)', basePrice: 30.00 },
-  'gildan2200':    { label: 'Gildan 2200 (Tank Top)',            basePrice: 13.00 },
-  'gildan5400':    { label: 'Gildan 5400 (Heavy Tee)',           basePrice: 15.00 },
-};
-
-const SHIRT_QTY_BREAKS = [
-  { min: 1,   max: 11,  discount: 0.00, label: '1–11 pcs' },
-  { min: 12,  max: 23,  discount: 0.12, label: '12–23 pcs' },
-  { min: 24,  max: 47,  discount: 0.20, label: '24–47 pcs' },
-  { min: 48,  max: 71,  discount: 0.28, label: '48–71 pcs' },
-  { min: 72,  max: Infinity, discount: 0.35, label: '72+ pcs' },
+const SHIRT_QTY_TIERS = [
+  { min: 1,   max: 25,       price: 18.00, label: '1–25 shirts' },
+  { min: 26,  max: 50,       price: 16.00, label: '26–50 shirts' },
+  { min: 51,  max: 100,      price: 14.00, label: '51–100 shirts' },
+  { min: 101, max: Infinity, price: 13.00, label: '100+ shirts' },
 ];
 
+/**
+ * Get upcharge for oversized shirts
+ * XL = $0, 2XL = +$1, 3XL = +$2, ... 7XL = +$6
+ * @param {string} sizeKey  e.g. "XL", "2XL", "3XL"
+ * @returns {number}
+ */
+function getShirtSizeUpcharge(sizeKey) {
+  const match = sizeKey && sizeKey.match(/^(\d+)XL$/i);
+  if (!match) return 0;
+  const x = parseInt(match[1]);
+  return x >= 2 ? Math.min(x - 1, 6) : 0;
+}
+
 function getShirtTier(qty) {
-  for (let i = 0; i < SHIRT_QTY_BREAKS.length; i++) {
-    if (qty >= SHIRT_QTY_BREAKS[i].min && qty <= SHIRT_QTY_BREAKS[i].max) return SHIRT_QTY_BREAKS[i];
-  }
-  return SHIRT_QTY_BREAKS[SHIRT_QTY_BREAKS.length - 1];
+  return SHIRT_QTY_TIERS.find(function (t) {
+    return qty >= t.min && qty <= t.max;
+  }) || SHIRT_QTY_TIERS[SHIRT_QTY_TIERS.length - 1];
 }
 
 /**
- * Calculate custom T-shirt price
- * @param {string} typeKey
+ * Calculate shirt total
  * @param {number} qty
- * @param {boolean} hasPocket - add pocket print ($2/shirt)
- * @returns {{ unitPrice, total, tier, savings }}
+ * @param {string} sizeUpchargeKey  optional — e.g. "2XL"
+ * @param {number} nameCount       number of name personalizations
+ * @param {number} numberCount     number of number personalizations
+ * @returns {{ unitPrice, total, tier, personalizationCost }}
  */
-function calcShirtPrice(typeKey, qty, hasPocket) {
-  const shirt = SHIRT_TYPES[typeKey];
-  if (!shirt || qty < 1) return null;
-  const tier      = getShirtTier(qty);
-  const base      = shirt.basePrice + (hasPocket ? 2.00 : 0);
-  const unitPrice = +(base * (1 - tier.discount)).toFixed(2);
-  const total     = +(unitPrice * qty).toFixed(2);
-  const savings   = +((base - unitPrice) * qty).toFixed(2);
-  return { unitPrice, total, tier, savings, basePrice: base };
+function calcShirtPrice(qty, sizeUpchargeKey, nameCount, numberCount) {
+  if (qty < 1) return null;
+  const tier         = getShirtTier(qty);
+  const upcharge     = getShirtSizeUpcharge(sizeUpchargeKey || '');
+  const unitBase     = tier.price + upcharge;
+  const personNames  = (nameCount  || 0) * 3.00;
+  const personNums   = (numberCount || 0) * 2.00;
+  const personPerShirt = personNames + personNums;
+  const unitPrice    = +(unitBase + personPerShirt).toFixed(2);
+  const total        = +(unitPrice * qty).toFixed(2);
+  return {
+    unitPrice,
+    total,
+    tier,
+    upcharge,
+    personalizationCost: +(personPerShirt * qty).toFixed(2),
+    baseTotal: +(unitBase * qty).toFixed(2),
+  };
 }
 
 /* ================================================================
-   UI HELPERS — Wire up the pricing widgets on each page
+   PERSONALIZATION PRICING
    ================================================================ */
 
-/** Format a number as USD currency string */
+const PERSONALIZATION = {
+  name:   { label: 'Name',   price: 3.00 },
+  number: { label: 'Number', price: 2.00 },
+};
+
+/* ================================================================
+   UI HELPERS
+   ================================================================ */
+
 function fmt(n) {
-  return '$' + n.toFixed(2);
+  return '$' + Number(n).toFixed(2);
 }
 
-/* ----- DTF Single-Size Calculator (used on dtf-transfers.html) ----- */
+/* ----- DTF Calculator (dtf-transfers.html) ----- */
 window.initDtfCalculator = function () {
   const sizeSelect = document.getElementById('dtfSize');
   const qtyInput   = document.getElementById('dtfQty');
-  const display    = document.getElementById('dtfPriceDisplay');
-  if (!sizeSelect || !qtyInput || !display) return;
+  if (!sizeSelect || !qtyInput) return;
 
   function render() {
-    const result = calcDtfPrice(sizeSelect.value, parseInt(qtyInput.value) || 1);
+    const qty    = parseInt(qtyInput.value) || 1;
+    const result = calcDtfPrice(sizeSelect.value, qty);
     if (!result) return;
 
-    document.getElementById('dtfUnitPrice').textContent = fmt(result.unitPrice);
-    document.getElementById('dtfTotal').textContent     = fmt(result.total);
-    document.getElementById('dtfTierBadge').textContent = result.tierLabel + ' pricing';
+    const unitEl  = document.getElementById('dtfUnitPrice');
+    const totalEl = document.getElementById('dtfTotal');
+    const bdQty   = document.getElementById('bdQty');
+    const bdUnit  = document.getElementById('bdUnit');
+    const bdTotal = document.getElementById('bdTotal');
+    const badge   = document.getElementById('dtfTierBadge');
 
-    // Highlight active column in reference table
-    document.querySelectorAll('.price-tier-col').forEach(function (col, i) {
-      col.classList.toggle('highlight', i === result.tierIndex);
-    });
-
-    // Price breakdown rows
-    const bdQty  = document.getElementById('bdQty');
-    const bdUnit = document.getElementById('bdUnit');
-    const bdTotal= document.getElementById('bdTotal');
-    if (bdQty)   bdQty.textContent  = parseInt(qtyInput.value) + ' transfers';
-    if (bdUnit)  bdUnit.textContent = fmt(result.unitPrice) + ' each';
-    if (bdTotal) bdTotal.textContent= fmt(result.total);
+    if (unitEl)  unitEl.textContent  = fmt(result.unitPrice);
+    if (totalEl) totalEl.textContent = fmt(result.total);
+    if (bdQty)   bdQty.textContent   = qty + ' transfer' + (qty > 1 ? 's' : '');
+    if (bdUnit)  bdUnit.textContent  = fmt(result.unitPrice) + ' each';
+    if (bdTotal) bdTotal.textContent = fmt(result.total);
+    if (badge)   badge.textContent   = result.sizeLabel + ' transfer';
   }
 
   sizeSelect.addEventListener('change', render);
   qtyInput.addEventListener('input', render);
-  render(); // initial render
+  render();
 };
 
-/* ----- Gang Sheet Calculator (used on dtf-transfers.html) ----- */
+/* ----- Gang Sheet Calculator (dtf-transfers.html) ----- */
 window.initGangSheetCalculator = function () {
   const sheetSelect = document.getElementById('gangSheetSize');
   const qtyInput    = document.getElementById('gangSheetQty');
@@ -211,7 +201,6 @@ window.initGangSheetCalculator = function () {
   function render() {
     const result = calcGangSheetPrice(sheetSelect.value, parseInt(qtyInput.value) || 1);
     if (!result) return;
-
     const priceEl   = document.getElementById('gsSheetPrice');
     const totalEl   = document.getElementById('gsTotal');
     const discountEl= document.getElementById('gsDiscount');
@@ -227,54 +216,57 @@ window.initGangSheetCalculator = function () {
   render();
 };
 
-/* ----- T-Shirt Calculator (used on tshirts.html) ----- */
+/* ----- T-Shirt Calculator (tshirts.html) ----- */
 window.initShirtCalculator = function () {
-  const typeSelect  = document.getElementById('shirtType');
-  const qtyInput    = document.getElementById('shirtQty');
-  const pocketCheck = document.getElementById('shirtPocket');
-  const display     = document.getElementById('shirtPriceDisplay');
-  if (!typeSelect || !qtyInput || !display) return;
+  const qtyInput     = document.getElementById('shirtQty');
+  const sizeUpcharge = document.getElementById('shirtSizeUpcharge');
+  const nameCount    = document.getElementById('shirtNameCount');
+  const numberCount  = document.getElementById('shirtNumberCount');
+  if (!qtyInput) return;
 
   function render() {
-    const result = calcShirtPrice(
-      typeSelect.value,
-      parseInt(qtyInput.value) || 1,
-      pocketCheck ? pocketCheck.checked : false
-    );
+    const qty    = parseInt(qtyInput.value) || 1;
+    const szKey  = sizeUpcharge ? sizeUpcharge.value : '';
+    const names  = nameCount   ? parseInt(nameCount.value)   || 0 : 0;
+    const nums   = numberCount ? parseInt(numberCount.value) || 0 : 0;
+    const result = calcShirtPrice(qty, szKey, names, nums);
     if (!result) return;
 
     const unitEl    = document.getElementById('shirtUnitPrice');
     const totalEl   = document.getElementById('shirtTotal');
     const tierEl    = document.getElementById('shirtTierBadge');
     const savingsEl = document.getElementById('shirtSavings');
+    const bdQty     = document.getElementById('sbd-qty');
+    const bdUnit    = document.getElementById('sbd-unit');
+    const bdPerson  = document.getElementById('sbd-person');
+    const bdTot     = document.getElementById('sbd-total');
+    const bdUpch    = document.getElementById('sbd-upcharge');
+
     if (unitEl)    unitEl.textContent    = fmt(result.unitPrice);
     if (totalEl)   totalEl.textContent   = fmt(result.total);
-    if (tierEl)    tierEl.textContent    = result.tier.label + ' pricing';
+    if (tierEl)    tierEl.textContent    = result.tier.label + ' · ' + fmt(result.tier.price) + '/shirt';
     if (savingsEl) {
-      savingsEl.textContent = result.savings > 0
-        ? 'You save ' + fmt(result.savings) + ' vs. single-piece price'
-        : 'Order 12+ for bulk discounts';
+      const saved = (18.00 - result.tier.price) * qty;
+      savingsEl.textContent = saved > 0
+        ? 'You save ' + fmt(saved) + ' vs. single-piece price'
+        : 'Best price starts at 26+ shirts';
     }
-
-    // Breakdown
-    const bdQty  = document.getElementById('sbd-qty');
-    const bdUnit = document.getElementById('sbd-unit');
-    const bdSave = document.getElementById('sbd-save');
-    const bdTot  = document.getElementById('sbd-total');
-    if (bdQty)  bdQty.textContent  = (parseInt(qtyInput.value) || 1) + ' shirts';
-    if (bdUnit) bdUnit.textContent = fmt(result.unitPrice) + '/shirt';
-    if (bdSave) bdSave.textContent = result.savings > 0 ? '–' + fmt(result.savings) : '$0.00';
-    if (bdTot)  bdTot.textContent  = fmt(result.total);
+    if (bdQty)    bdQty.textContent    = qty + ' shirt' + (qty > 1 ? 's' : '');
+    if (bdUnit)   bdUnit.textContent   = fmt(result.tier.price) + '/shirt (base)';
+    if (bdUpch)   bdUpch.textContent   = result.upcharge > 0 ? '+' + fmt(result.upcharge) + '/shirt (oversize)' : 'Standard size';
+    if (bdPerson) bdPerson.textContent = result.personalizationCost > 0 ? '+' + fmt(result.personalizationCost) + ' (personalization)' : 'None';
+    if (bdTot)    bdTot.textContent    = fmt(result.total);
   }
 
-  typeSelect.addEventListener('change', render);
   qtyInput.addEventListener('input', render);
-  pocketCheck && pocketCheck.addEventListener('change', render);
+  sizeUpcharge  && sizeUpcharge.addEventListener('change', render);
+  nameCount     && nameCount.addEventListener('input', render);
+  numberCount   && numberCount.addEventListener('input', render);
   render();
 };
 
-/* Expose for use in gang sheet builder */
-window.GANG_SHEETS      = GANG_SHEETS;
-window.DTF_SIZES        = DTF_SIZES;
+/* Expose for gang sheet builder */
+window.GANG_SHEETS        = GANG_SHEETS;
+window.DTF_PRICES         = DTF_PRICES;
 window.calcGangSheetPrice = calcGangSheetPrice;
-window.fmt              = fmt;
+window.fmt                = fmt;

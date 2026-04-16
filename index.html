@@ -176,53 +176,81 @@
           <p>The more you order, the more you save. Quantity breaks applied automatically.</p>
         </div>
 
-        <div class="fade-in" style="overflow-x:auto;">
-          <table class="pricing-table" aria-label="DTF transfer pricing by size and quantity">
-            <thead>
-              <tr>
-                <th scope="col">Transfer Size</th>
-                <th scope="col">1–5 pcs</th>
-                <th scope="col">6–11 pcs</th>
-                <th scope="col">12–23 pcs</th>
-                <th scope="col">24–47 pcs</th>
-                <th scope="col">48–99 pcs</th>
-                <th scope="col" class="best">100+ pcs</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>4" × 4" (Small)</td>
-                <td>$2.50</td><td>$2.00</td><td>$1.75</td><td>$1.50</td><td>$1.25</td>
-                <td class="best">$1.00</td>
-              </tr>
-              <tr>
-                <td>4" × 12" (Sleeve)</td>
-                <td>$3.00</td><td>$2.50</td><td>$2.00</td><td>$1.75</td><td>$1.50</td>
-                <td class="best">$1.25</td>
-              </tr>
-              <tr>
-                <td>8" × 8" (Medium)</td>
-                <td>$3.75</td><td>$3.25</td><td>$2.75</td><td>$2.25</td><td>$2.00</td>
-                <td class="best">$1.75</td>
-              </tr>
-              <tr>
-                <td>11" × 15" (Full Front)</td>
-                <td>$5.50</td><td>$5.00</td><td>$4.50</td><td>$4.00</td><td>$3.50</td>
-                <td class="best">$3.00</td>
-              </tr>
-              <tr>
-                <td>12" × 16" (XL Front)</td>
-                <td>$6.50</td><td>$6.00</td><td>$5.50</td><td>$5.00</td><td>$4.50</td>
-                <td class="best">$4.00</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="fade-in" style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" id="homePricingGrid">
+
+          <!-- DTF Pricing -->
+          <div style="overflow-x:auto;">
+            <h3 style="margin-bottom:1rem;font-size:1.1rem;">🔥 DTF Transfers — Flat Price Per Transfer</h3>
+            <table class="pricing-table" aria-label="DTF transfer pricing by size">
+              <thead>
+                <tr>
+                  <th scope="col">Size</th>
+                  <th scope="col">Price Each</th>
+                  <th scope="col">Size</th>
+                  <th scope="col">Price Each</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1.5"</td><td>$1.00</td><td>11"</td><td>$5.75</td></tr>
+                <tr><td>2"</td>  <td>$1.25</td><td>11.5"</td><td>$6.25</td></tr>
+                <tr><td>3"</td>  <td>$1.75</td><td>12"</td><td>$6.50</td></tr>
+                <tr><td>4"</td>  <td>$2.00</td><td>12.5"</td><td>$6.50</td></tr>
+                <tr><td>5"</td>  <td>$2.00</td><td>13"</td><td>$6.75</td></tr>
+                <tr><td>8"</td>  <td>$3.25</td><td>14"</td><td>$7.25</td></tr>
+                <tr><td>9"</td>  <td>$3.75</td><td>15"</td><td>$7.50</td></tr>
+                <tr><td>10"</td> <td>$5.25</td><td>16"</td><td>$7.75</td></tr>
+                <tr><td>10.5"</td><td>$5.25</td><td>17"</td><td>$8.25</td></tr>
+                <tr><td colspan="2"></td><td>18"</td><td class="best">$8.50</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:0.78rem;color:var(--gray);margin-top:0.5rem;">Size = largest dimension. No minimums.</p>
+          </div>
+
+          <!-- T-Shirt Pricing -->
+          <div>
+            <h3 style="margin-bottom:1rem;font-size:1.1rem;">👕 T-Shirt Printing</h3>
+            <table class="pricing-table" aria-label="T-shirt production pricing">
+              <thead>
+                <tr><th scope="col">Quantity</th><th scope="col">Price Per Shirt</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1–25 shirts</td>   <td>$18.00</td></tr>
+                <tr><td>26–50 shirts</td>  <td>$16.00</td></tr>
+                <tr><td>51–100 shirts</td> <td>$14.00</td></tr>
+                <tr><td class="best">100+ shirts</td><td class="best">$13.00</td></tr>
+              </tbody>
+            </table>
+            <div style="background:rgba(255,105,180,0.06);border:1px solid rgba(255,105,180,0.2);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.83rem;color:var(--gray);">
+              <strong style="color:var(--accent);">Add-ons:</strong>
+              Names +$3.00 · Numbers +$2.00 · Oversize +$1 per X over XL (up to 7XL)
+            </div>
+            <div style="margin-top:1rem;">
+              <h4 style="font-size:1rem;margin-bottom:0.5rem;">🗂️ Gang Sheets</h4>
+              <table class="pricing-table">
+                <thead><tr><th>Sheet Size</th><th>Price/Sheet</th></tr></thead>
+                <tbody>
+                  <tr><td>13" × 19"</td><td>$12.00</td></tr>
+                  <tr><td>22" × 24"</td><td>$20.00</td></tr>
+                  <tr><td class="best">22" × 36"</td><td class="best">$28.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
 
         <p class="text-center mt-3" style="color:var(--gray);font-size:0.88rem;">
-          Gang sheets start at <strong>$12.00/sheet</strong>.
-          <a href="dtf-transfers.html">View full DTF pricing →</a>
+          <a href="dtf-transfers.html">View full DTF pricing →</a> &nbsp;·&nbsp;
+          <a href="tshirts.html">Configure your t-shirt order →</a>
         </p>
+
+        <script>
+          (function(){
+            var g = document.getElementById('homePricingGrid');
+            function r(){ g.style.gridTemplateColumns = window.innerWidth >= 768 ? '1fr 1fr' : '1fr'; }
+            r(); window.addEventListener('resize', r);
+          })();
+        </script>
       </div>
     </section>
 

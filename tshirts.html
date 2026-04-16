@@ -90,7 +90,21 @@
                 <button class="chip"        type="button">3XL</button>
                 <button class="chip"        type="button">4XL</button>
               </div>
-              <p class="form-hint">3XL and 4XL add $2–$3 per shirt.</p>
+              <p class="form-hint">Add $1 per X over XL — select your largest size below for accurate pricing.</p>
+            </div>
+
+            <!-- Oversize upcharge selector -->
+            <div class="option-group">
+              <label for="shirtSizeUpcharge">Largest Size in Order</label>
+              <select id="shirtSizeUpcharge" class="form-control" style="max-width:260px;">
+                <option value="XL"  selected>Up to XL — no upcharge</option>
+                <option value="2XL" >2XL — +$1.00/shirt</option>
+                <option value="3XL" >3XL — +$2.00/shirt</option>
+                <option value="4XL" >4XL — +$3.00/shirt</option>
+                <option value="5XL" >5XL — +$4.00/shirt</option>
+                <option value="6XL" >6XL — +$5.00/shirt</option>
+                <option value="7XL" >7XL — +$6.00/shirt</option>
+              </select>
             </div>
 
             <!-- Print Location -->
@@ -104,12 +118,22 @@
               </div>
             </div>
 
-            <!-- Pocket Print Add-on -->
+            <!-- Personalization Add-ons -->
             <div class="option-group">
-              <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
-                <input type="checkbox" id="shirtPocket" style="width:18px;height:18px;accent-color:var(--primary);" />
-                Add Pocket Print (+$2.00/shirt)
+              <label style="font-family:var(--font-heading);font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                Personalization (optional)
               </label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.5rem;">
+                <div>
+                  <label for="shirtNameCount" style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;display:block;">Names (+$3.00 each)</label>
+                  <input type="number" id="shirtNameCount" min="0" max="999" value="0" class="form-control" style="max-width:100px;" />
+                </div>
+                <div>
+                  <label for="shirtNumberCount" style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;display:block;">Numbers (+$2.00 each)</label>
+                  <input type="number" id="shirtNumberCount" min="0" max="999" value="0" class="form-control" style="max-width:100px;" />
+                </div>
+              </div>
+              <p class="form-hint">e.g. 24 shirts with names = +$72.00 total</p>
             </div>
 
             <!-- Quantity -->
@@ -122,56 +146,49 @@
                   <button class="qty-btn" data-dir="1" aria-label="Increase quantity" type="button">+</button>
                 </div>
               </div>
-              <p class="form-hint">Minimum order: 1 piece. Bulk discounts start at 12.</p>
+              <p class="form-hint">Order any quantity. Better price starts at 26 shirts.</p>
             </div>
-
-            <!-- Select element (hidden, synced for form submission) -->
-            <select id="shirtType" class="hidden" aria-hidden="true">
-              <option value="gildan5000"  selected>Gildan 5000 (Standard Tee)</option>
-              <option value="bella3001"           >Bella+Canvas 3001 (Premium Tee)</option>
-              <option value="gildan18500"          >Gildan 18500 (Heavy Blend Hoodie)</option>
-              <option value="gildan2200"           >Gildan 2200 (Tank Top)</option>
-              <option value="gildan5400"           >Gildan 5400 (Heavy Tee)</option>
-            </select>
           </div>
 
           <!-- Right: Price Display -->
           <div>
             <div class="price-display" id="shirtPriceDisplay" aria-live="polite" aria-label="Price estimate">
               <div class="price-label">Estimated Price Per Shirt</div>
-              <div class="price-amount" id="shirtUnitPrice">$11.48</div>
+              <div class="price-amount" id="shirtUnitPrice">$14.00</div>
               <div class="price-unit">per shirt</div>
-              <div class="price-tier-badge" id="shirtTierBadge">24–47 pcs pricing</div>
-              <div style="font-size:0.8rem;opacity:0.75;margin-top:0.5rem;" id="shirtSavings">You save $2.52 vs. single-piece price</div>
+              <div class="price-tier-badge" id="shirtTierBadge">1–25 shirts · $18.00/shirt</div>
+              <div style="font-size:0.8rem;opacity:0.75;margin-top:0.5rem;" id="shirtSavings">Order 26+ to save $2/shirt</div>
             </div>
 
             <div class="price-breakdown">
               <div class="pbd-row"><span>Quantity</span><span id="sbd-qty">24 shirts</span></div>
-              <div class="pbd-row"><span>Price per shirt</span><span id="sbd-unit">$11.48</span></div>
-              <div class="pbd-row"><span>Quantity savings</span><span id="sbd-save" style="color:var(--success);">–$60.48</span></div>
-              <div class="pbd-row"><span>Estimated Total</span><span id="sbd-total">$275.52</span></div>
+              <div class="pbd-row"><span>Base price</span><span id="sbd-unit">$18.00/shirt</span></div>
+              <div class="pbd-row"><span>Oversize upcharge</span><span id="sbd-upcharge">Standard size</span></div>
+              <div class="pbd-row"><span>Personalization</span><span id="sbd-person">None</span></div>
+              <div class="pbd-row"><span>Estimated Total</span><span id="sbd-total">$432.00</span></div>
             </div>
 
-            <!-- Bulk discount table -->
+            <!-- Production pricing table -->
             <div style="margin-top:1.5rem;overflow-x:auto;">
-              <table class="pricing-table" aria-label="T-shirt bulk discount tiers">
+              <table class="pricing-table" aria-label="T-shirt production pricing tiers">
                 <thead>
                   <tr>
-                    <th scope="col">Qty Range</th>
-                    <th scope="col">Discount</th>
-                    <th scope="col">Gildan Tee</th>
-                    <th scope="col">Premium Tee</th>
-                    <th scope="col">Hoodie</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price Per Shirt</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td>1–11 pcs</td><td>—</td><td>$14.00</td><td>$21.00</td><td>$30.00</td></tr>
-                  <tr><td>12–23 pcs</td><td>12% off</td><td>$12.32</td><td>$18.48</td><td>$26.40</td></tr>
-                  <tr><td>24–47 pcs</td><td>20% off</td><td>$11.20</td><td>$16.80</td><td>$24.00</td></tr>
-                  <tr><td>48–71 pcs</td><td>28% off</td><td>$10.08</td><td>$15.12</td><td>$21.60</td></tr>
-                  <tr><td class="best">72+ pcs</td><td class="best">35% off</td><td class="best">$9.10</td><td class="best">$13.65</td><td class="best">$19.50</td></tr>
+                  <tr><td>1–25 shirts</td>   <td>$18.00</td></tr>
+                  <tr><td>26–50 shirts</td>  <td>$16.00</td></tr>
+                  <tr><td>51–100 shirts</td> <td>$14.00</td></tr>
+                  <tr><td class="best">100+ shirts</td><td class="best">$13.00</td></tr>
                 </tbody>
               </table>
+              <div style="background:rgba(255,105,180,0.06);border:1px solid rgba(255,105,180,0.2);border-radius:var(--radius-sm);padding:0.9rem 1rem;margin-top:0.75rem;font-size:0.85rem;">
+                <strong style="color:var(--accent);">Personalization Add-ons</strong><br>
+                <span style="color:var(--gray);">Names: <strong>$3.00</strong> per shirt &nbsp;·&nbsp; Numbers: <strong>$2.00</strong> per shirt<br>
+                Oversize: <strong>+$1</strong> per X over XL (2XL–7XL)</span>
+              </div>
             </div>
           </div>
 
@@ -449,11 +466,15 @@
       initShirtCalculator();
     });
 
-    /* ---- Pocket checkbox ---- */
-    document.getElementById('shirtPocket').addEventListener('change', initShirtCalculator);
-
     /* ---- Init pricing ---- */
     initShirtCalculator();
+
+    /* ---- Oversize / personalization live update ---- */
+    ['shirtSizeUpcharge','shirtNameCount','shirtNumberCount'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', initShirtCalculator);
+      if (el) el.addEventListener('input',  initShirtCalculator);
+    });
 
     /* ---- Upload ---- */
     initUpload('shirtUploadArea', 'shirtUploadPreview', 'shirtFileInput');

@@ -136,13 +136,27 @@
                 <div class="form-group">
                   <label for="dtfSize">Transfer Size <span class="req" aria-hidden="true">*</span></label>
                   <select id="dtfSize" class="form-control" aria-label="Select transfer size">
-                    <option value="4x4"  selected>4" × 4"  — Small / Pocket Print</option>
-                    <option value="4x12"         >4" × 12" — Sleeve / Long Strip</option>
-                    <option value="8x8"          >8" × 8"  — Medium Print</option>
-                    <option value="11x15"        >11" × 15" — Full Front</option>
-                    <option value="12x16"        >12" × 16" — XL Front</option>
-                    <option value="13x19"        >13" × 19" — Oversized</option>
+                    <option value="1.5"  >1.5"  — $1.00 each</option>
+                    <option value="2"    >2"    — $1.25 each</option>
+                    <option value="3"    >3"    — $1.75 each</option>
+                    <option value="4" selected>4" — $2.00 each</option>
+                    <option value="5"    >5"    — $2.00 each</option>
+                    <option value="8"    >8"    — $3.25 each</option>
+                    <option value="9"    >9"    — $3.75 each</option>
+                    <option value="10"   >10"   — $5.25 each</option>
+                    <option value="10.5" >10.5" — $5.25 each</option>
+                    <option value="11"   >11"   — $5.75 each</option>
+                    <option value="11.5" >11.5" — $6.25 each</option>
+                    <option value="12"   >12"   — $6.50 each</option>
+                    <option value="12.5" >12.5" — $6.50 each</option>
+                    <option value="13"   >13"   — $6.75 each</option>
+                    <option value="14"   >14"   — $7.25 each</option>
+                    <option value="15"   >15"   — $7.50 each</option>
+                    <option value="16"   >16"   — $7.75 each</option>
+                    <option value="17"   >17"   — $8.25 each</option>
+                    <option value="18"   >18"   — $8.50 each</option>
                   </select>
+                  <p class="form-hint">Size = largest dimension of your design (width or height).</p>
                 </div>
 
                 <div class="form-group">
@@ -159,28 +173,37 @@
 
                 <!-- Full pricing reference table -->
                 <div style="overflow-x:auto;margin-top:2rem;">
-                  <h4 style="margin-bottom:1rem;">Full Price Reference</h4>
-                  <table class="pricing-table" aria-label="DTF transfer pricing reference">
+                  <h4 style="margin-bottom:1rem;">Full Price List</h4>
+                  <table class="pricing-table" aria-label="DTF transfer pricing by size">
                     <thead>
                       <tr>
-                        <th scope="col">Size</th>
-                        <th scope="col" class="price-tier-col">1–5</th>
-                        <th scope="col" class="price-tier-col">6–11</th>
-                        <th scope="col" class="price-tier-col">12–23</th>
-                        <th scope="col" class="price-tier-col">24–47</th>
-                        <th scope="col" class="price-tier-col">48–99</th>
-                        <th scope="col" class="price-tier-col best">100+</th>
+                        <th scope="col">Size (largest dimension)</th>
+                        <th scope="col">Price Per Transfer</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr><td>4" × 4"</td>   <td>$2.50</td><td>$2.00</td><td>$1.75</td><td>$1.50</td><td>$1.25</td><td class="best">$1.00</td></tr>
-                      <tr><td>4" × 12"</td>  <td>$3.00</td><td>$2.50</td><td>$2.00</td><td>$1.75</td><td>$1.50</td><td class="best">$1.25</td></tr>
-                      <tr><td>8" × 8"</td>   <td>$3.75</td><td>$3.25</td><td>$2.75</td><td>$2.25</td><td>$2.00</td><td class="best">$1.75</td></tr>
-                      <tr><td>11" × 15"</td> <td>$5.50</td><td>$5.00</td><td>$4.50</td><td>$4.00</td><td>$3.50</td><td class="best">$3.00</td></tr>
-                      <tr><td>12" × 16"</td> <td>$6.50</td><td>$6.00</td><td>$5.50</td><td>$5.00</td><td>$4.50</td><td class="best">$4.00</td></tr>
-                      <tr><td>13" × 19"</td> <td>$7.50</td><td>$7.00</td><td>$6.50</td><td>$6.00</td><td>$5.50</td><td class="best">$5.00</td></tr>
+                      <tr><td>1.5"</td><td>$1.00</td></tr>
+                      <tr><td>2"</td>  <td>$1.25</td></tr>
+                      <tr><td>3"</td>  <td>$1.75</td></tr>
+                      <tr><td>4"</td>  <td>$2.00</td></tr>
+                      <tr><td>5"</td>  <td>$2.00</td></tr>
+                      <tr><td>8"</td>  <td>$3.25</td></tr>
+                      <tr><td>9"</td>  <td>$3.75</td></tr>
+                      <tr><td>10"</td> <td>$5.25</td></tr>
+                      <tr><td>10.5"</td><td>$5.25</td></tr>
+                      <tr><td>11"</td> <td>$5.75</td></tr>
+                      <tr><td>11.5"</td><td>$6.25</td></tr>
+                      <tr><td>12"</td> <td>$6.50</td></tr>
+                      <tr><td>12.5"</td><td>$6.50</td></tr>
+                      <tr><td>13"</td> <td>$6.75</td></tr>
+                      <tr><td>14"</td> <td>$7.25</td></tr>
+                      <tr><td>15"</td> <td>$7.50</td></tr>
+                      <tr><td>16"</td> <td>$7.75</td></tr>
+                      <tr><td>17"</td> <td>$8.25</td></tr>
+                      <tr><td>18"</td><td class="best">$8.50</td></tr>
                     </tbody>
                   </table>
+                  <p style="font-size:0.8rem;color:var(--gray);margin-top:0.6rem;">Prices are per individual transfer. No minimum order required.</p>
                 </div>
               </div>
 
@@ -188,20 +211,20 @@
               <div>
                 <div class="price-display" id="dtfPriceDisplay" aria-live="polite">
                   <div class="price-label">Price Per Transfer</div>
-                  <div class="price-amount" id="dtfUnitPrice">$1.75</div>
+                  <div class="price-amount" id="dtfUnitPrice">$2.00</div>
                   <div class="price-unit">per transfer</div>
-                  <div class="price-tier-badge" id="dtfTierBadge">12–23 pcs pricing</div>
+                  <div class="price-tier-badge" id="dtfTierBadge">4" transfer</div>
                 </div>
 
                 <div class="price-breakdown" style="margin-top:1rem;">
-                  <div class="pbd-row"><span>Quantity</span><span id="bdQty">12 transfers</span></div>
-                  <div class="pbd-row"><span>Unit price</span><span id="bdUnit">$1.75 each</span></div>
-                  <div class="pbd-row"><span>Order Total</span><span id="bdTotal">$21.00</span></div>
+                  <div class="pbd-row"><span>Quantity</span><span id="bdQty">1 transfer</span></div>
+                  <div class="pbd-row"><span>Unit price</span><span id="bdUnit">$2.00 each</span></div>
+                  <div class="pbd-row"><span>Order Total</span><span id="bdTotal">$2.00</span></div>
                 </div>
 
                 <div class="alert alert-info" style="margin-top:1rem;">
                   <span class="alert-icon" aria-hidden="true">💡</span>
-                  <span>Need multiple designs of the same size? All count toward your quantity tier!</span>
+                  <span>Flat price per transfer — no quantity minimums. Order exactly what you need!</span>
                 </div>
 
                 <a href="#dtfQuote" class="btn btn-primary btn-full mt-3">Request This Order</a>
@@ -355,12 +378,25 @@
                 <select id="dtfTransferSize" name="Transfer Size" class="form-control" required>
                   <option value="">Select…</option>
                   <optgroup label="Single-Size Transfers">
-                    <option>4" × 4"</option>
-                    <option>4" × 12"</option>
-                    <option>8" × 8"</option>
-                    <option>11" × 15"</option>
-                    <option>12" × 16"</option>
-                    <option>13" × 19"</option>
+                    <option>1.5"</option>
+                    <option>2"</option>
+                    <option>3"</option>
+                    <option>4"</option>
+                    <option>5"</option>
+                    <option>8"</option>
+                    <option>9"</option>
+                    <option>10"</option>
+                    <option>10.5"</option>
+                    <option>11"</option>
+                    <option>11.5"</option>
+                    <option>12"</option>
+                    <option>12.5"</option>
+                    <option>13"</option>
+                    <option>14"</option>
+                    <option>15"</option>
+                    <option>16"</option>
+                    <option>17"</option>
+                    <option>18"</option>
                   </optgroup>
                   <optgroup label="Gang Sheets">
                     <option>Gang Sheet — 13" × 19"</option>
