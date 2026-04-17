@@ -43,7 +43,7 @@ body {
   --gradient:     linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
   --font-heading: 'Montserrat', sans-serif;
   --font-body:    'Open Sans', sans-serif;
-  --nav-height:   72px;
+  --nav-height:   110px;
 }
 
 /* ---- Typography ---- */
@@ -178,7 +178,7 @@ ul { list-style: none; }
   text-decoration: none;
 }
 .nav-logo img {
-  height: 64px;
+  height: 100px;
   width: auto;
 }
 .nav-links {
@@ -745,7 +745,7 @@ select.form-control { cursor: pointer; }
 @media (min-width: 600px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 900px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
 .footer-brand img {
-  height: 72px;
+  height: 100px;
   margin-bottom: 1rem;
 }
 .footer-brand p { font-size: 0.88rem; line-height: 1.75; color: rgba(255,255,255,0.65); }
