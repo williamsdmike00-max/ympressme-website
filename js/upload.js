@@ -113,7 +113,7 @@ window.initUpload = function (areaId, previewId, inputId, onFileSelected) {
     const file = e.dataTransfer.files[0];
     if (file) {
       handleFile(file);
-      // Update the input's files if possible (for Formspree submission)
+      // Sync dropped file back into the native input so the form handler can read it.
       try {
         const dt = new DataTransfer();
         dt.items.add(file);

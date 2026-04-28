@@ -131,12 +131,11 @@
             <div class="card" style="padding:2.5rem;">
               <h3 style="margin-bottom:1.75rem;">Send Us Your Project Details</h3>
 
-              <!-- Formspree — replace YOUR_FORM_ID -->
+              <!-- Submits to /api/send-inquiry via js/inquiry-submit.js -->
               <form
                 id="contactForm"
-                action="https://formspree.io/f/YOUR_FORM_ID"
+                action="/api/send-inquiry"
                 method="POST"
-                enctype="multipart/form-data"
                 novalidate
               >
                 <input type="hidden" name="_subject" value="New Quote Request — YMPRESSME" />
@@ -321,6 +320,7 @@
   <script src="js/main.js"></script>
   <script src="js/upload.js"></script>
   <script src="js/homepage.js"></script>
+  <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
 
@@ -343,28 +343,43 @@
         return;
       }
 
+      if (!window.YMP || !window.YMP.submitInquiry) {
+        showToast('Form is still loading — give it a second and try again.', 'error');
+        return;
+      }
+
       const btn = document.getElementById('contactSubmitBtn');
       btn.textContent = 'Sending…';
       btn.disabled = true;
 
       try {
-        const res = await fetch(this.action, {
-          method: 'POST',
-          body: new FormData(this),
-          headers: { Accept: 'application/json' }
+        const fd = new FormData(this);
+        const fields = {};
+        for (const [k, v] of fd.entries()) {
+          if (k === '_subject' || k === '_gotcha' || k === 'Artwork File') continue;
+          if (v) fields[k] = v;
+        }
+
+        const fileInput = document.getElementById('contactFileInput');
+        const file = fileInput && fileInput.files && fileInput.files[0];
+
+        await window.YMP.submitInquiry({
+          formType: 'Quote Request',
+          subject: fd.get('_subject') || 'New Quote Request — YMPRESSME',
+          fields,
+          files: file ? [{ file, label: 'Artwork — ' + file.name }] : [],
+          replyTo: fd.get('Email') || null,
+          honeypot: fd.get('_gotcha') || '',
         });
 
-        if (res.ok) {
-          document.getElementById('contactSuccess').classList.remove('hidden');
-          document.getElementById('contactError').classList.add('hidden');
-          this.reset();
-          document.getElementById('contactUploadPreview').classList.remove('show');
-          showToast('Quote request sent! We\'ll be in touch soon.', 'success');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          throw new Error('Submission failed');
-        }
+        document.getElementById('contactSuccess').classList.remove('hidden');
+        document.getElementById('contactError').classList.add('hidden');
+        this.reset();
+        document.getElementById('contactUploadPreview').classList.remove('show');
+        showToast('Quote request sent! We\'ll be in touch soon.', 'success');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
+        console.error(err);
         document.getElementById('contactError').classList.remove('hidden');
         showToast('Submission failed. Please try again.', 'error');
       } finally {

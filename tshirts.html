@@ -256,18 +256,18 @@
 
         <div style="max-width:720px;margin:0 auto;" class="fade-in">
 
-          <!-- Formspree form — replace YOUR_FORM_ID with your actual Formspree endpoint -->
+          <!-- Submits to /api/send-inquiry via js/inquiry-submit.js -->
           <form
             id="shirtQuoteForm"
-            action="https://formspree.io/f/YOUR_FORM_ID"
+            action="/api/send-inquiry"
             method="POST"
-            enctype="multipart/form-data"
             novalidate
           >
             <!-- Hidden fields for product context -->
             <input type="hidden" name="Product Type" value="Custom T-Shirt Printing" />
             <input type="hidden" name="_subject" value="New T-Shirt Quote Request — YMPRESSME" />
             <input type="hidden" name="_replyto" id="replyToField" value="" />
+            <input type="hidden" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none;" aria-hidden="true" />
 
             <div class="form-row">
               <div class="form-group">
@@ -436,6 +436,7 @@
   <script src="js/homepage.js"></script>
   <script src="js/pricing.js"></script>
   <script src="js/upload.js"></script>
+  <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
 
@@ -519,23 +520,42 @@
         return;
       }
 
+      if (!window.YMP || !window.YMP.submitInquiry) {
+        showToast('Form is still loading — give it a second and try again.', 'error');
+        return;
+      }
+
       const btn = document.getElementById('shirtSubmitBtn');
       btn.textContent = 'Sending…';
       btn.disabled = true;
 
       try {
-        const data = new FormData(shirtForm);
-        const res  = await fetch(shirtForm.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
-        if (res.ok) {
-          document.getElementById('shirtFormSuccess').classList.remove('hidden');
-          document.getElementById('shirtFormError').classList.add('hidden');
-          shirtForm.reset();
-          document.getElementById('shirtUploadPreview').classList.remove('show');
-          showToast('Quote submitted! We\'ll be in touch soon.', 'success');
-        } else {
-          throw new Error('Form submission failed');
+        const fd = new FormData(shirtForm);
+        const fields = {};
+        for (const [k, v] of fd.entries()) {
+          if (k === '_subject' || k === '_gotcha' || k === '_replyto' || k === 'Artwork File') continue;
+          if (v) fields[k] = v;
         }
+
+        const fileInput = document.getElementById('shirtFileInput');
+        const file = fileInput && fileInput.files && fileInput.files[0];
+
+        await window.YMP.submitInquiry({
+          formType: 'T-Shirt Quote',
+          subject: fd.get('_subject') || 'New T-Shirt Quote Request — YMPRESSME',
+          fields,
+          files: file ? [{ file, label: 'Artwork — ' + file.name }] : [],
+          replyTo: fd.get('Email') || null,
+          honeypot: fd.get('_gotcha') || '',
+        });
+
+        document.getElementById('shirtFormSuccess').classList.remove('hidden');
+        document.getElementById('shirtFormError').classList.add('hidden');
+        shirtForm.reset();
+        document.getElementById('shirtUploadPreview').classList.remove('show');
+        showToast('Quote submitted! We\'ll be in touch soon.', 'success');
       } catch (err) {
+        console.error(err);
         document.getElementById('shirtFormError').classList.remove('hidden');
         showToast('Submission failed. Please try again.', 'error');
       } finally {

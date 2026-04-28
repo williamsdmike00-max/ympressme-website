@@ -293,17 +293,18 @@
             <span>Your gang sheet layout has been added to this form. Fill in your details below and submit.</span>
           </div>
 
+          <!-- Submits to /api/send-inquiry via js/inquiry-submit.js -->
           <form
             id="gangSheetQuoteForm"
-            action="https://formspree.io/f/YOUR_FORM_ID"
+            action="/api/send-inquiry"
             method="POST"
-            enctype="multipart/form-data"
             novalidate
           >
             <input type="hidden" name="Product Type" value="Gang Sheet Order" />
             <input type="hidden" name="_subject" value="New Gang Sheet Quote — YMPRESSME" />
             <input type="hidden" name="Sheet Size" id="formGangSheetSize" value="" />
             <input type="hidden" name="Design Count" id="formDesignCount" value="" />
+            <input type="hidden" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none;" aria-hidden="true" />
 
             <div class="form-group">
               <label for="gsLayoutSummary">Layout Summary (auto-filled by builder)</label>
@@ -441,6 +442,7 @@
   <script src="js/pricing.js"></script>
   <script src="js/upload.js"></script>
   <script src="js/gang-sheet-builder.js"></script>
+  <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
 
@@ -492,22 +494,61 @@
       });
       if (!valid) { showToast('Please fill in all required fields.', 'error'); return; }
 
+      if (!window.YMP || !window.YMP.submitInquiry) {
+        showToast('Form is still loading — give it a second and try again.', 'error');
+        return;
+      }
+
       const btn = document.getElementById('gsSubmitBtn');
       btn.textContent = 'Sending…'; btn.disabled = true;
       try {
-        const res = await fetch(this.action, {
-          method: 'POST',
-          body: new FormData(this),
-          headers: { Accept: 'application/json' }
+        const fd = new FormData(this);
+        const fields = {};
+        for (const [k, v] of fd.entries()) {
+          if (k === '_subject' || k === '_gotcha' || k === 'Design Files') continue;
+          if (v) fields[k] = v;
+        }
+
+        const fileInput = document.getElementById('gsFileInput');
+        const file = fileInput && fileInput.files && fileInput.files[0];
+
+        const filesToUpload = [];
+        if (file) filesToUpload.push({ file, label: 'Customer Designs — ' + file.name });
+
+        // Capture the auto-generated layout PNG from the canvas builder, if present.
+        if (typeof window.exportSheetLayout === 'function') {
+          try {
+            const dataUrl = window.exportSheetLayout();
+            if (dataUrl) {
+              const blob = await fetch(dataUrl).then(function (r) { return r.blob(); });
+              const layoutFile = new File(
+                [blob],
+                'gang-sheet-layout-' + Date.now() + '.png',
+                { type: 'image/png' }
+              );
+              filesToUpload.push({ file: layoutFile, label: 'Layout Visual (auto-generated)' });
+            }
+          } catch (layoutErr) {
+            console.warn('Could not export layout PNG:', layoutErr);
+          }
+        }
+
+        await window.YMP.submitInquiry({
+          formType: 'Gang Sheet Order',
+          subject: fd.get('_subject') || 'New Gang Sheet Quote — YMPRESSME',
+          fields,
+          files: filesToUpload,
+          replyTo: fd.get('Email') || null,
+          honeypot: fd.get('_gotcha') || '',
         });
-        if (res.ok) {
-          document.getElementById('gsFormSuccess').classList.remove('hidden');
-          document.getElementById('gsFormError').classList.add('hidden');
-          this.reset();
-          document.getElementById('gsUploadPreview').classList.remove('show');
-          showToast('Gang sheet order submitted! We\'ll send a proof soon.', 'success');
-        } else throw new Error();
-      } catch {
+
+        document.getElementById('gsFormSuccess').classList.remove('hidden');
+        document.getElementById('gsFormError').classList.add('hidden');
+        this.reset();
+        document.getElementById('gsUploadPreview').classList.remove('show');
+        showToast('Gang sheet order submitted! We\'ll send a proof soon.', 'success');
+      } catch (err) {
+        console.error(err);
         document.getElementById('gsFormError').classList.remove('hidden');
         showToast('Submission failed. Please try again.', 'error');
       } finally {

@@ -17,13 +17,20 @@ Ympressme website/
 ├── about.html                 — About page
 ├── faq.html                   — FAQ (accordion)
 ├── contact.html               — General contact + quote form
+├── package.json               — Declares @vercel/blob + resend deps for serverless functions
+├── api/
+│   ├── upload-token.js        — Issues Vercel Blob upload tokens for direct browser uploads
+│   └── send-inquiry.js        — Receives form data + Blob URLs, emails inquiry via Resend
 ├── css/
-│   └── styles.css             — All styles (brand colors, components, responsive)
+│   ├── styles.css             — Light theme (forms, configurator, calculator)
+│   └── cinematic.css          — Dark cinematic theme (homepage only)
 ├── js/
 │   ├── main.js                — Navigation, scroll animations, toast, tabs, accordion
 │   ├── pricing.js             — Live pricing calculators (DTF, gang sheets, t-shirts)
 │   ├── upload.js              — Drag-and-drop file upload with preview
-│   └── gang-sheet-builder.js  — Canvas-based interactive gang sheet builder
+│   ├── gang-sheet-builder.js  — Canvas-based interactive gang sheet builder
+│   ├── homepage.js            — Cinematic homepage effects (cursor, parallax, marquee)
+│   └── inquiry-submit.js      — Shared form-submit helper (Blob upload + JSON to /api)
 └── assets/
     └── logo.png               — YMPRESSME logo (place your file here)
 ```
@@ -39,19 +46,19 @@ assets/logo.png
 ```
 It's referenced throughout the site as `assets/logo.png`.
 
-### 2. Set Up Formspree (Email Submissions)
-All quote forms use [Formspree](https://formspree.io) to send emails with file attachments.
+### 2. Set Up Email Delivery (Vercel + Resend + Blob)
+All quote forms POST to a Vercel serverless function (`api/send-inquiry`). Files are uploaded directly from the browser to Vercel Blob storage and emailed as download links via Resend.
 
-**To set it up:**
-1. Go to [formspree.io](https://formspree.io) and create a free account
-2. Create a new form — copy your form endpoint (looks like `https://formspree.io/f/abcdefgh`)
-3. Find and replace `YOUR_FORM_ID` across all HTML files:
-   - `tshirts.html` — line with `action="https://formspree.io/f/YOUR_FORM_ID"`
-   - `dtf-transfers.html` — same
-   - `gang-sheet-builder.html` — same
-   - `contact.html` — same
+**One-time setup (Vercel project dashboard):**
+1. **Enable Vercel Blob:** Storage tab → Create Blob store → Vercel auto-creates `BLOB_READ_WRITE_TOKEN`
+2. **Create Resend account** at [resend.com](https://resend.com) using the email address you want inquiries to land in. Generate an API key.
+3. **Add Vercel environment variables** (Settings → Environment Variables):
+   - `RESEND_API_KEY` — paste your Resend API key
+   - `INQUIRY_TO_EMAIL` — the inbox where inquiries should arrive (must match the email you signed up for Resend with, until a custom domain is verified)
+   - *(Optional)* `INQUIRY_FROM_ADDRESS` — defaults to `YMPRESSME Inquiries <onboarding@resend.dev>`. Override only after verifying a domain in Resend.
+4. **Redeploy** (push any commit, or click "Redeploy" in the dashboard) so the env vars take effect.
 
-> **Note on file attachments:** Formspree's free plan supports form submissions but file attachments require a paid plan (~$8/mo). Alternatively, use [Netlify Forms](https://docs.netlify.com/forms/setup/) which supports file uploads on its free tier when hosted on Netlify.
+> **Why this stack?** Vercel Blob handles files up to the 50MB form cap (bypasses Vercel's 4.5MB function body limit). Resend free tier covers 3,000 emails/month. No third-party form middleware required.
 
 ### 3. Update Contact Info
 Search for and replace these placeholders across all HTML files:
@@ -146,12 +153,13 @@ The interactive builder (`gang-sheet-builder.html` + `js/gang-sheet-builder.js`)
 
 ## Testing the Forms
 
-To test form submissions locally without Formspree:
-1. Open browser DevTools → Network tab
-2. Submit a form
-3. You'll see the POST request — verify all fields are populated
+The forms only work end-to-end on a deployed Vercel preview/production (the Blob upload + email serverless functions need to actually run). Local `python -m http.server` will load the pages but submit attempts will fail.
 
-For live testing, set up a Formspree account (free tier works for initial testing, no file attachments).
+**Live testing (after deploy):**
+1. Visit a form page on the deployed URL (e.g., `https://ympressme-website.vercel.app/contact.html`)
+2. Fill it out, attach a small test PNG, submit
+3. Confirm the email lands in `INQUIRY_TO_EMAIL` within ~30 seconds with a download link to the artwork
+4. Check Vercel function logs (Project → Functions tab) if anything fails — they'll show what went wrong
 
 ---
 
@@ -169,11 +177,13 @@ Tested and working in:
 ## Quick Checklist Before Going Live
 
 - [ ] Logo added to `assets/logo.png`
-- [ ] `YOUR_FORM_ID` replaced in all 4 HTML files
-- [ ] Email address updated (`hello@ympressme.com` → your email)
+- [ ] Vercel Blob enabled (Storage tab in Vercel project)
+- [ ] `RESEND_API_KEY` env var set in Vercel
+- [ ] `INQUIRY_TO_EMAIL` env var set in Vercel (must match Resend signup email)
+- [ ] Email address in HTML updated (`ympressme@yahoo.com` → current contact email if changed)
 - [ ] Phone number updated
 - [ ] Location updated
 - [ ] Social media links updated
 - [ ] Prices reviewed and adjusted to your actual rates
-- [ ] Test a form submission end-to-end
+- [ ] Test a form submission end-to-end on the live URL
 - [ ] Custom domain connected (optional)
