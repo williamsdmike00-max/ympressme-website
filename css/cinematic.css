@@ -112,25 +112,45 @@ body.cinematic {
   overflow-x: hidden;
 }
 
-/* ---------- Cinematic nav (overrides sticky → fixed) ---------- */
+/* ---------- Cinematic nav (centered large logo, links below) ---------- */
 body.cinematic .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
   background: transparent;
   height: auto;
-  padding: 18px 36px;
+  padding: 24px 36px 14px;
   box-shadow: none;
   transition: background 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease, backdrop-filter 0.35s ease;
 }
-body.cinematic .navbar.scrolled { padding: 12px 36px; }
-body.cinematic .nav-inner { padding: 0; max-width: none; }
+body.cinematic .navbar.scrolled { padding: 14px 36px 10px; }
+body.cinematic .nav-inner {
+  padding: 0; max-width: none;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  position: relative;
+}
+body.cinematic .nav-logo {
+  order: 1;
+  transition: transform 0.35s ease;
+}
 body.cinematic .nav-logo img {
-  height: 56px;
+  height: 140px;
+  width: auto;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+  transition: height 0.35s ease, filter 0.35s ease;
+}
+body.cinematic .navbar.scrolled .nav-logo img {
+  height: 72px;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
 }
 body.cinematic .nav-links {
-  display: flex; gap: 4px; align-items: center;
+  order: 2;
+  display: flex; gap: 4px; align-items: center; justify-content: center;
+  flex-wrap: wrap;
+}
+body.cinematic .nav-hamburger {
+  position: absolute;
+  right: 0; top: 14px;
 }
 body.cinematic .nav-links a {
   position: relative;
@@ -164,7 +184,7 @@ body.cinematic .nav-cta a:hover {
 body.cinematic .hero {
   position: relative;
   min-height: 100vh;
-  padding: 140px 36px 80px;
+  padding: 250px 36px 80px;
   background: none;
   display: block;
   overflow: hidden; isolation: isolate;
@@ -204,7 +224,7 @@ body.cinematic .hero-grid {
   gap: 60px; max-width: 1300px;
   margin: 0 auto;
   align-items: center;
-  min-height: calc(100vh - 220px);
+  min-height: calc(100vh - 330px);
   position: relative; z-index: 1;
 }
 body.cinematic .hero-eyebrow {
@@ -911,11 +931,20 @@ body.cinematic .footer-bottom {
   body.cinematic .price-card.featured { transform: none; }
 }
 
+@media (max-width: 1024px) {
+  body.cinematic .nav-logo img { height: 100px; }
+  body.cinematic .navbar.scrolled .nav-logo img { height: 60px; }
+  body.cinematic .hero { padding: 200px 36px 60px; }
+}
+
 @media (max-width: 640px) {
   body.cinematic section { padding: 80px 20px; }
-  body.cinematic .hero { padding: 120px 20px 60px; }
-  body.cinematic .navbar { padding: 14px 20px; }
+  body.cinematic .hero { padding: 170px 20px 60px; }
+  body.cinematic .navbar { padding: 18px 20px 10px; }
   body.cinematic .navbar.scrolled { padding: 10px 20px; }
+  body.cinematic .nav-logo img { height: 80px; }
+  body.cinematic .navbar.scrolled .nav-logo img { height: 50px; }
+  body.cinematic .nav-hamburger { right: 0; top: 18px; }
   body.cinematic .footer { padding: 60px 20px 30px; }
   body.cinematic .footer-grid { grid-template-columns: 1fr; }
   body.cinematic .nav-links a:not(.nav-cta a) { display: none; }
