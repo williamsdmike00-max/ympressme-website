@@ -7,11 +7,14 @@
   <meta name="description" content="Learn about YMPRESSME — a custom t-shirt printing and DTF transfer business built on quality, speed, and making you look incredible. Because you look so good when we do!" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
 </head>
 <body>
 
+  <div class="grain"></div>
+
   <!-- ====== NAVIGATION ====== -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
       <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
         <img src="assets/logo.png" alt="YMPRESSME Logo" />
@@ -176,8 +179,8 @@
         <h2>Ready to Work With Us?</h2>
         <p>Get in touch and we'll help you bring your vision to life — quickly and affordably.</p>
         <div class="cta-btns">
-          <a href="contact.html" class="btn btn-primary btn-lg">Get a Free Quote</a>
-          <a href="faq.html" class="btn btn-outline-white btn-lg">Read Our FAQ</a>
+          <a href="contact.html" class="btn-cinema primary">Get a Free Quote <span class="arrow">→</span></a>
+          <a href="faq.html" class="btn-cinema ghost">Read Our FAQ</a>
         </div>
       </div>
     </section>
@@ -221,6 +224,7 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script src="js/homepage.js"></script>
   <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>

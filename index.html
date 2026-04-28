@@ -7,11 +7,16 @@
   <meta name="description" content="YMPRESSME offers premium custom t-shirt printing and DTF heat transfers including single-size transfers and gang sheets. Fast turnaround, vibrant prints, unbeatable quality." />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
 </head>
-<body>
+<body class="cinematic">
+
+  <!-- Cinematic overlays -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="grain"></div>
 
   <!-- ====== NAVIGATION ====== -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
       <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
         <img src="assets/logo.png" alt="YMPRESSME Logo" />
@@ -48,257 +53,257 @@
 
   <main>
 
-    <!-- ====== HERO ====== -->
+    <!-- ============ HERO ============ -->
     <section class="hero" aria-labelledby="heroHeading">
-      <div class="container">
-        <div class="hero-content">
-          <span class="hero-badge">Custom Printing · DTF Transfers · Gang Sheets</span>
+      <div class="hero-bg"></div>
+      <div class="hero-orb pink"></div>
+      <div class="hero-orb blue"></div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="hero-eyebrow"><span class="dot"></span>Custom Printing · DTF · Gang Sheets</span>
           <h1 id="heroHeading">
-            Make People Stop &amp;<br>
-            <em>Stare at Your Shirt</em>
+            <span class="reveal-word"><span style="animation-delay:.05s">Make</span></span>
+            <span class="reveal-word"><span style="animation-delay:.15s">People</span></span>
+            <span class="reveal-word"><span style="animation-delay:.25s">Stop&nbsp;&amp;</span></span><br>
+            <em><span class="reveal-word"><span style="animation-delay:.40s">Stare</span></span>
+            <span class="reveal-word"><span style="animation-delay:.50s">at</span></span>
+            <span class="reveal-word"><span style="animation-delay:.60s">Your</span></span>
+            <span class="reveal-word"><span style="animation-delay:.70s">Shirt.</span></span></em>
           </h1>
-          <p>Premium custom t-shirt printing and DTF heat transfers. Upload your design, pick your size, and we'll make you look incredible — fast.</p>
-          <div class="hero-btns">
-            <a href="contact.html" class="btn btn-primary btn-lg">Get a Free Quote</a>
-            <a href="dtf-transfers.html" class="btn btn-secondary btn-lg">Shop DTF Transfers</a>
+          <p class="hero-sub">Premium custom t-shirt printing and DTF heat transfers. Upload your design, pick your size, and we'll make you look incredible — fast.</p>
+          <div class="hero-ctas">
+            <a href="contact.html" class="btn-cinema primary">Get a Free Quote <span class="arrow">→</span></a>
+            <a href="dtf-transfers.html" class="btn-cinema ghost">Shop DTF Transfers</a>
           </div>
           <div class="hero-stats">
-            <div class="hero-stat">
-              <strong>48hr</strong>
-              <span>Rush Turnaround</span>
+            <div class="hero-stat"><strong>48hr</strong><span>Rush Turnaround</span></div>
+            <div class="hero-stat"><strong>300+</strong><span>Happy Customers</span></div>
+            <div class="hero-stat"><strong>100%</strong><span>Satisfaction</span></div>
+          </div>
+        </div>
+
+        <!-- Photo collage with floating "your logo here" 3D shirt -->
+        <div class="hero-stage" id="heroStage" aria-hidden="true">
+          <div class="photo-card photo-1" data-depth="0.04">
+            <img src="assets/lifestyle-man-tee.png" alt="" />
+          </div>
+          <div class="photo-card photo-2" data-depth="-0.03">
+            <img src="assets/lifestyle-heatpress.png" alt="" />
+          </div>
+          <div class="photo-card photo-3" data-depth="0.05">
+            <img src="assets/lifestyle-folded.png" alt="" />
+          </div>
+          <div class="floating-shirt" data-depth="0.08">
+            <div class="shirt-3d">
+              <svg viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="shirtGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1d1d24"/>
+                    <stop offset="100%" stop-color="#0a0a0e"/>
+                  </linearGradient>
+                  <filter id="shirtShadow"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity="0.4"/></filter>
+                </defs>
+                <path d="M40 30 L70 10 L90 25 Q110 40 130 25 L150 10 L180 30 L200 70 L170 85 L170 220 Q170 230 160 230 L60 230 Q50 230 50 220 L50 85 L20 70 Z"
+                      fill="url(#shirtGrad)" filter="url(#shirtShadow)" stroke="#2a2a35" stroke-width="1"/>
+                <path d="M90 25 Q110 50 130 25" fill="none" stroke="#2a2a35" stroke-width="2"/>
+              </svg>
+              <div class="logo-placeholder">
+                <span class="logo-line">YOUR</span>
+                <span class="logo-line">LOGO</span>
+                <span class="logo-line">HERE</span>
+              </div>
             </div>
-            <div class="hero-stat">
-              <strong>300+</strong>
-              <span>Happy Customers</span>
-            </div>
-            <div class="hero-stat">
-              <strong>100%</strong>
-              <span>Satisfaction Guarantee</span>
-            </div>
+            <span class="floating-tag">+ Your Design</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ====== TRUST BAR ====== -->
-    <div class="trust-bar" aria-label="Trust signals">
-      <div class="container">
-        <div class="trust-items">
-          <div class="trust-item"><span class="ti-icon" aria-hidden="true">⚡</span> 48-Hour Rush Available</div>
-          <div class="trust-item"><span class="ti-icon" aria-hidden="true">🎨</span> Full-Color Prints on Any Fabric</div>
-          <div class="trust-item"><span class="ti-icon" aria-hidden="true">📦</span> Ships Nationwide</div>
-          <div class="trust-item"><span class="ti-icon" aria-hidden="true">🔒</span> No Setup Fees</div>
-          <div class="trust-item"><span class="ti-icon" aria-hidden="true">✅</span> Satisfaction Guaranteed</div>
-        </div>
-      </div>
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track" id="marqueeTrack"></div>
     </div>
 
-    <!-- ====== SERVICES ====== -->
-    <section aria-labelledby="servicesHeading">
+    <!-- ============ SERVICES ============ -->
+    <section id="services" aria-labelledby="servicesHeading">
       <div class="container">
-        <div class="section-header fade-in">
-          <span class="section-label">What We Do</span>
-          <h2 id="servicesHeading">Everything You Need to <span class="text-accent">Look Amazing</span></h2>
-          <p>From single shirts to bulk orders, gang sheets to full print runs — YMPRESSME has you covered.</p>
+        <div class="section-head reveal">
+          <span class="section-eyebrow">What We Print</span>
+          <h2 id="servicesHeading">Premium printing solutions <em>for every need</em></h2>
+          <p>From single shirts to bulk runs, gang sheets to event tees — YMPRESSME has you covered.</p>
         </div>
 
-        <div class="grid-3">
-          <a href="tshirts.html" class="service-card fade-in" aria-label="Custom T-Shirt Printing">
-            <div class="service-card-img" aria-hidden="true">👕</div>
-            <div class="service-card-body">
-              <h3>Custom T-Shirt Printing</h3>
-              <p>Upload your design and we'll print it on premium garments — tees, hoodies, tanks, and more. Bulk discounts start at 12 pieces.</p>
-              <span class="service-tag">From $14/shirt</span>
+        <div class="services-grid">
+          <a href="tshirts.html" class="service-card reveal delay-1">
+            <div class="service-photo"><img src="assets/product-tee-legend.png" alt="Premium custom printed t-shirt" /></div>
+            <div class="service-body">
+              <h3>Custom T-Shirts</h3>
+              <p>Upload your design and we'll print it on premium garments — tees, hoodies, tanks, and more.</p>
+              <span class="service-cta">From $14 / shirt <span class="arrow">→</span></span>
             </div>
           </a>
-
-          <a href="dtf-transfers.html" class="service-card fade-in" aria-label="DTF Single-Size Transfers">
-            <div class="service-card-img" aria-hidden="true">🔥</div>
-            <div class="service-card-body">
-              <h3>DTF Single-Size Transfers</h3>
-              <p>Ready-to-press Direct-to-Film transfers in standard sizes. Works on cotton, poly, blends — light or dark fabrics.</p>
-              <span class="service-tag">From $1.00/transfer</span>
+          <a href="dtf-transfers.html" class="service-card reveal delay-2 featured">
+            <div class="service-photo"><img src="assets/product-dtf-skulls.png" alt="Vibrant DTF transfer design" /></div>
+            <div class="service-body">
+              <h3>DTF Transfers</h3>
+              <p>Ready-to-press Direct-to-Film transfers in standard sizes. Cotton, poly, blends — light or dark fabrics.</p>
+              <span class="service-cta">From $1.00 / transfer <span class="arrow">→</span></span>
             </div>
           </a>
-
-          <a href="gang-sheet-builder.html" class="service-card fade-in" aria-label="Gang Sheet Builder">
-            <div class="service-card-img" aria-hidden="true">🗂️</div>
-            <div class="service-card-body">
+          <a href="gang-sheet-builder.html" class="service-card reveal delay-3">
+            <div class="service-photo"><img src="assets/product-gang-sheet.png" alt="Multiple designs on a gang sheet" /></div>
+            <div class="service-body">
               <h3>Gang Sheet Builder</h3>
-              <p>Pack multiple designs onto a single 22×36" sheet for maximum value. Drag, arrange, and submit — our interactive builder makes it easy.</p>
-              <span class="service-tag">From $12.00/sheet</span>
+              <p>Pack multiple designs onto a single sheet for maximum value. Drag, arrange, and submit.</p>
+              <span class="service-cta">From $12.00 / sheet <span class="arrow">→</span></span>
+            </div>
+          </a>
+          <a href="contact.html" class="service-card reveal delay-1">
+            <div class="service-photo"><img src="assets/product-bulk.png" alt="Stack of folded bulk-order shirts" /></div>
+            <div class="service-body">
+              <h3>Bulk Orders</h3>
+              <p>Order more, save more. Volume pricing kicks in at 26 shirts and drops further at 51 and 100+.</p>
+              <span class="service-cta">Volume pricing <span class="arrow">→</span></span>
+            </div>
+          </a>
+          <a href="contact.html" class="service-card reveal delay-2">
+            <div class="service-photo"><img src="assets/product-uniforms.png" alt="Branded business uniforms" /></div>
+            <div class="service-body">
+              <h3>Business Uniforms</h3>
+              <p>Professional apparel for your team — shirts, polos, and outerwear with your logo printed perfectly.</p>
+              <span class="service-cta">Get a quote <span class="arrow">→</span></span>
+            </div>
+          </a>
+          <a href="contact.html" class="service-card reveal delay-3">
+            <div class="service-photo"><img src="assets/product-event.png" alt="Event staff t-shirts" /></div>
+            <div class="service-body">
+              <h3>Event Shirts</h3>
+              <p>Family reunions, church groups, sports teams, festivals — make your event unforgettable.</p>
+              <span class="service-cta">Plan your event <span class="arrow">→</span></span>
             </div>
           </a>
         </div>
       </div>
     </section>
 
-    <!-- ====== HOW IT WORKS ====== -->
-    <section class="bg-light" aria-labelledby="howHeading">
+    <!-- ============ WHY CHOOSE US ============ -->
+    <section class="why" aria-labelledby="whyHeading">
       <div class="container">
-        <div class="section-header fade-in">
-          <span class="section-label">Process</span>
-          <h2 id="howHeading">From Idea to <span class="text-primary">In Your Hands</span></h2>
-          <p>Getting your custom prints is simple. Here's how it works in 4 easy steps.</p>
+        <div class="why-grid">
+          <div class="why-head reveal">
+            <span class="section-eyebrow">Why Choose Us</span>
+            <h2 id="whyHeading">Quality you can see.<br><em>Service you can trust.</em></h2>
+          </div>
+          <ul class="why-points">
+            <li class="reveal delay-1"><div class="why-icon" aria-hidden="true">👕</div><div><strong>Premium Soft Shirts</strong><p>Top-quality blanks for maximum comfort and durability — no cheap stock.</p></div></li>
+            <li class="reveal delay-2"><div class="why-icon" aria-hidden="true">⚡</div><div><strong>Fast Turnaround</strong><p>Standard 3–5 days. 48-hour rush available when you need it now.</p></div></li>
+            <li class="reveal delay-3"><div class="why-icon" aria-hidden="true">🎨</div><div><strong>Vibrant Prints That Last</strong><p>Bold, full-color prints that don't crack or fade — wash after wash.</p></div></li>
+            <li class="reveal delay-1"><div class="why-icon" aria-hidden="true">💰</div><div><strong>No Hidden Fees</strong><p>Transparent pricing. The number in the calculator is the number you pay.</p></div></li>
+            <li class="reveal delay-2"><div class="why-icon" aria-hidden="true">💛</div><div><strong>Friendly Local Service</strong><p>You'll deal with a real person — based in Dallas, TX, here for every order.</p></div></li>
+          </ul>
         </div>
+      </div>
+    </section>
 
-        <div class="steps-row fade-in">
-          <div class="step">
-            <div class="step-num" aria-hidden="true">1</div>
-            <h4>Choose Your Product</h4>
-            <p>Select custom tees, single-size DTF transfers, or build a gang sheet.</p>
+    <!-- ============ SHOWCASE ============ -->
+    <section id="showcase" class="showcase" aria-labelledby="showcaseHeading">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-eyebrow">Our Work</span>
+          <h2 id="showcaseHeading">See our quality <em>in action</em></h2>
+        </div>
+        <div class="showcase-track">
+          <div class="showcase-tile reveal"><img src="assets/gallery-1.png" alt="Custom printed t-shirt design" /></div>
+          <div class="showcase-tile reveal delay-1"><img src="assets/gallery-2.png" alt="Skull DTF transfer design" /></div>
+          <div class="showcase-tile reveal delay-2 wide"><img src="assets/gallery-3.png" alt="Heat press in action" /></div>
+          <div class="showcase-tile reveal delay-3"><img src="assets/gallery-4.png" alt="DTF transfer peel" /></div>
+          <div class="showcase-tile reveal delay-4"><img src="assets/gallery-5.png" alt="Custom t-shirt with bold graphic" /></div>
+          <div class="showcase-tile reveal delay-1"><img src="assets/gallery-6.png" alt="Folded printed t-shirts" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROCESS ============ -->
+    <section id="process" class="process" aria-labelledby="processHeading">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-eyebrow">How It Works</span>
+          <h2 id="processHeading">From idea to <em>in your hands</em></h2>
+          <p>Four steps. No setup fees. No surprises.</p>
+        </div>
+        <div class="steps">
+          <div class="step-c reveal delay-1"><div class="num">1</div><h4>Choose Your Product</h4><p>Custom tees, single-size DTF transfers, or build a gang sheet.</p></div>
+          <div class="step-c reveal delay-2"><div class="num">2</div><h4>Upload Your Art</h4><p>PNG, PDF, or SVG. 300 DPI · transparent background.</p></div>
+          <div class="step-c reveal delay-3"><div class="num">3</div><h4>Get Your Quote</h4><p>Live calculator shows your total instantly.</p></div>
+          <div class="step-c reveal delay-4"><div class="num">4</div><h4>Receive &amp; Press</h4><p>Ships fast — heat-press onto fabric in seconds.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PRICING ============ -->
+    <section id="pricing" class="pricing-wrap" aria-labelledby="pricingHeading">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="section-eyebrow">Pricing</span>
+          <h2 id="pricingHeading">Transparent pricing, <em>no surprises</em></h2>
+          <p>Order more, save more. Quantity breaks applied automatically.</p>
+        </div>
+        <div class="price-grid">
+          <div class="price-card reveal delay-1">
+            <h3>DTF Transfers</h3>
+            <p class="desc">Ready-to-press, any fabric.</p>
+            <div class="amt">$1<small>.00</small></div>
+            <div class="unit">starting per transfer</div>
+            <ul>
+              <li>Sizes from 1.5" up to 18"</li>
+              <li>Cotton, poly, blends</li>
+              <li>No minimums</li>
+              <li>Light or dark fabrics</li>
+            </ul>
+            <a href="dtf-transfers.html" class="btn-cinema ghost">Order Transfers <span class="arrow">→</span></a>
           </div>
-          <div class="step">
-            <div class="step-num" aria-hidden="true">2</div>
-            <h4>Upload Your Art</h4>
-            <p>Drop your PNG, PDF, or SVG file. We accept 300 DPI files with transparent backgrounds.</p>
+          <div class="price-card featured reveal delay-2">
+            <h3>Custom T-Shirts</h3>
+            <p class="desc">Premium garments printed to perfection.</p>
+            <div class="amt">$13<small>.00</small></div>
+            <div class="unit">per shirt at 100+</div>
+            <ul>
+              <li>Tees, hoodies, tanks</li>
+              <li>Names +$3 · numbers +$2</li>
+              <li>Sizes up to 7XL</li>
+              <li>48hr rush available</li>
+            </ul>
+            <a href="tshirts.html" class="btn-cinema primary">Configure Order <span class="arrow">→</span></a>
           </div>
-          <div class="step">
-            <div class="step-num" aria-hidden="true">3</div>
-            <h4>Get Your Quote</h4>
-            <p>Our live pricing calculator shows your total instantly. Submit and we'll confirm within hours.</p>
-          </div>
-          <div class="step">
-            <div class="step-num" aria-hidden="true">4</div>
-            <h4>Receive &amp; Press</h4>
-            <p>Your prints ship fast. DTF transfers are ready to heat-press on any fabric in seconds.</p>
+          <div class="price-card reveal delay-3">
+            <h3>Gang Sheets</h3>
+            <p class="desc">Pack designs, save money.</p>
+            <div class="amt">$12<small>.00</small></div>
+            <div class="unit">starting per sheet</div>
+            <ul>
+              <li>13×19, 22×24, 22×36</li>
+              <li>Interactive builder</li>
+              <li>Overlap detection</li>
+              <li>Best per-design value</li>
+            </ul>
+            <a href="gang-sheet-builder.html" class="btn-cinema ghost">Build a Sheet <span class="arrow">→</span></a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ====== DTF PRICING PREVIEW ====== -->
-    <section aria-labelledby="pricingHeading">
-      <div class="container">
-        <div class="section-header fade-in">
-          <span class="section-label">Pricing</span>
-          <h2 id="pricingHeading">Transparent Pricing, <span class="text-accent">No Surprises</span></h2>
-          <p>The more you order, the more you save. Quantity breaks applied automatically.</p>
-        </div>
-
-        <div class="fade-in" style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" id="homePricingGrid">
-
-          <!-- DTF Pricing -->
-          <div style="overflow-x:auto;">
-            <h3 style="margin-bottom:1rem;font-size:1.1rem;">🔥 DTF Transfers — Flat Price Per Transfer</h3>
-            <table class="pricing-table" aria-label="DTF transfer pricing by size">
-              <thead>
-                <tr>
-                  <th scope="col">Size</th>
-                  <th scope="col">Price Each</th>
-                  <th scope="col">Size</th>
-                  <th scope="col">Price Each</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>1.5"</td><td>$1.00</td><td>11"</td><td>$5.75</td></tr>
-                <tr><td>2"</td>  <td>$1.25</td><td>11.5"</td><td>$6.25</td></tr>
-                <tr><td>3"</td>  <td>$1.75</td><td>12"</td><td>$6.50</td></tr>
-                <tr><td>4"</td>  <td>$2.00</td><td>12.5"</td><td>$6.50</td></tr>
-                <tr><td>5"</td>  <td>$2.00</td><td>13"</td><td>$6.75</td></tr>
-                <tr><td>8"</td>  <td>$3.25</td><td>14"</td><td>$7.25</td></tr>
-                <tr><td>9"</td>  <td>$3.75</td><td>15"</td><td>$7.50</td></tr>
-                <tr><td>10"</td> <td>$5.25</td><td>16"</td><td>$7.75</td></tr>
-                <tr><td>10.5"</td><td>$5.25</td><td>17"</td><td>$8.25</td></tr>
-                <tr><td colspan="2"></td><td>18"</td><td class="best">$8.50</td></tr>
-              </tbody>
-            </table>
-            <p style="font-size:0.78rem;color:var(--gray);margin-top:0.5rem;">Size = largest dimension. No minimums.</p>
-          </div>
-
-          <!-- T-Shirt Pricing -->
-          <div>
-            <h3 style="margin-bottom:1rem;font-size:1.1rem;">👕 T-Shirt Printing</h3>
-            <table class="pricing-table" aria-label="T-shirt production pricing">
-              <thead>
-                <tr><th scope="col">Quantity</th><th scope="col">Price Per Shirt</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>1–25 shirts</td>   <td>$18.00</td></tr>
-                <tr><td>26–50 shirts</td>  <td>$16.00</td></tr>
-                <tr><td>51–100 shirts</td> <td>$14.00</td></tr>
-                <tr><td class="best">100+ shirts</td><td class="best">$13.00</td></tr>
-              </tbody>
-            </table>
-            <div style="background:rgba(255,105,180,0.06);border:1px solid rgba(255,105,180,0.2);border-radius:var(--radius-sm);padding:0.8rem 1rem;margin-top:0.75rem;font-size:0.83rem;color:var(--gray);">
-              <strong style="color:var(--accent);">Add-ons:</strong>
-              Names +$3.00 · Numbers +$2.00 · Oversize +$1 per X over XL (up to 7XL)
-            </div>
-            <div style="margin-top:1rem;">
-              <h4 style="font-size:1rem;margin-bottom:0.5rem;">🗂️ Gang Sheets</h4>
-              <table class="pricing-table">
-                <thead><tr><th>Sheet Size</th><th>Price/Sheet</th></tr></thead>
-                <tbody>
-                  <tr><td>13" × 19"</td><td>$12.00</td></tr>
-                  <tr><td>22" × 24"</td><td>$20.00</td></tr>
-                  <tr><td class="best">22" × 36"</td><td class="best">$28.00</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-
-        <p class="text-center mt-3" style="color:var(--gray);font-size:0.88rem;">
-          <a href="dtf-transfers.html">View full DTF pricing →</a> &nbsp;·&nbsp;
-          <a href="tshirts.html">Configure your t-shirt order →</a>
-        </p>
-
-        <script>
-          (function(){
-            var g = document.getElementById('homePricingGrid');
-            function r(){ g.style.gridTemplateColumns = window.innerWidth >= 768 ? '1fr 1fr' : '1fr'; }
-            r(); window.addEventListener('resize', r);
-          })();
-        </script>
-      </div>
-    </section>
-
-    <!-- ====== WHY YMPRESSME ====== -->
-    <section class="bg-light" aria-labelledby="whyHeading">
-      <div class="container">
-        <div class="section-header fade-in">
-          <span class="section-label">Why Us</span>
-          <h2 id="whyHeading">Because You Deserve <span class="text-primary">Better Prints</span></h2>
-        </div>
-
-        <div class="grid-4 fade-in">
-          <div class="card text-center">
-            <div style="font-size:2.5rem;margin-bottom:1rem;" aria-hidden="true">🎨</div>
-            <h4>Vibrant Full-Color</h4>
-            <p style="color:var(--gray);font-size:0.88rem;margin:0;">No color limits. Print photorealistic designs on any fabric, light or dark.</p>
-          </div>
-          <div class="card text-center">
-            <div style="font-size:2.5rem;margin-bottom:1rem;" aria-hidden="true">⚡</div>
-            <h4>Fast Turnaround</h4>
-            <p style="color:var(--gray);font-size:0.88rem;margin:0;">Standard 3–5 days. Rush 48-hour processing available for urgent orders.</p>
-          </div>
-          <div class="card text-center">
-            <div style="font-size:2.5rem;margin-bottom:1rem;" aria-hidden="true">💰</div>
-            <h4>Bulk Discounts</h4>
-            <p style="color:var(--gray);font-size:0.88rem;margin:0;">Order more, pay less. Automatic quantity breaks from 6 pieces up to 100+.</p>
-          </div>
-          <div class="card text-center">
-            <div style="font-size:2.5rem;margin-bottom:1rem;" aria-hidden="true">🔬</div>
-            <h4>No Weeding Required</h4>
-            <p style="color:var(--gray);font-size:0.88rem;margin:0;">DTF transfers apply in seconds with a heat press — no mess, no setup.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====== TESTIMONIALS ====== -->
+    <!-- ============ TESTIMONIALS ============ -->
     <section aria-labelledby="reviewsHeading">
       <div class="container">
-        <div class="section-header fade-in">
-          <span class="section-label">Reviews</span>
-          <h2 id="reviewsHeading">What Our Customers <span class="text-accent">Say</span></h2>
+        <div class="section-head reveal">
+          <span class="section-eyebrow">What Customers Say</span>
+          <h2 id="reviewsHeading">Trusted by hundreds of <em>happy customers</em></h2>
         </div>
-
-        <div class="grid-3 fade-in">
-          <article class="testimonial-card">
+        <div class="testi-grid">
+          <article class="testi-card reveal delay-1">
             <div class="testi-stars" aria-label="5 out of 5 stars">★★★★★</div>
-            <p class="testi-text">"The colors on my DTF transfers are absolutely unreal. Ordered 50 of them for my small business — turned around in 3 days. YMPRESSME is the only printer I'll ever use."</p>
+            <p class="testi-text">"The colors on my DTF transfers are unreal. Ordered 50 of them for my small business — turned around in 3 days. YMPRESSME is the only printer I'll ever use."</p>
             <div class="testi-author">
               <div class="testi-avatar" aria-hidden="true">JD</div>
               <div>
@@ -307,10 +312,9 @@
               </div>
             </div>
           </article>
-
-          <article class="testimonial-card">
+          <article class="testi-card reveal delay-2">
             <div class="testi-stars" aria-label="5 out of 5 stars">★★★★★</div>
-            <p class="testi-text">"I used the gang sheet builder to pack 8 different designs on one sheet. Saved so much money. The quality is crisp and the transfers are super easy to press."</p>
+            <p class="testi-text">"Used the gang sheet builder to pack 8 different designs on one sheet. Saved so much money. Quality is crisp and the transfers are super easy to press."</p>
             <div class="testi-author">
               <div class="testi-avatar" aria-hidden="true">MR</div>
               <div>
@@ -319,10 +323,9 @@
               </div>
             </div>
           </article>
-
-          <article class="testimonial-card">
+          <article class="testi-card reveal delay-3">
             <div class="testi-stars" aria-label="5 out of 5 stars">★★★★★</div>
-            <p class="testi-text">"Ordered custom hoodies for my team. The print quality is next level — washed them 10+ times and they still look brand new. Fast shipping too. Highly recommend!"</p>
+            <p class="testi-text">"Ordered custom hoodies for my team. The print quality is next level — washed them 10+ times and they still look brand new. Fast shipping too."</p>
             <div class="testi-author">
               <div class="testi-avatar" aria-hidden="true">TL</div>
               <div>
@@ -335,74 +338,67 @@
       </div>
     </section>
 
-    <!-- ====== CTA ====== -->
-    <section class="cta-section" aria-labelledby="ctaHeading">
-      <div class="container">
-        <h2 id="ctaHeading">Ready to Look So Good?</h2>
-        <p>"Because you look so good when we do!" — let's bring your vision to life.</p>
-        <div class="cta-btns">
-          <a href="contact.html" class="btn btn-primary btn-lg">Get a Free Quote</a>
-          <a href="gang-sheet-builder.html" class="btn btn-outline-white btn-lg">Try Gang Sheet Builder</a>
+    <!-- ============ MEGA CTA ============ -->
+    <section class="mega-cta" aria-labelledby="ctaHeading">
+      <div class="mega-cta-inner reveal">
+        <div class="mega-cta-copy">
+          <h2 id="ctaHeading">Ready to bring your <em>idea to life?</em></h2>
+          <p>"Because you look so good when we do!" — let's bring your vision to life with fast, premium custom printing.</p>
+          <div class="hero-ctas">
+            <a href="contact.html" class="btn-cinema primary">Get a Free Quote <span class="arrow">→</span></a>
+            <a href="#showcase" class="btn-cinema ghost">View Gallery</a>
+          </div>
+        </div>
+        <div class="mega-cta-art">
+          <img src="assets/cta-your-design-here.png" alt="Custom shirt mockup with Your Design Here placeholder" />
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ====== FOOTER ====== -->
+  <!-- ============ FOOTER ============ -->
   <footer class="footer" aria-label="Site footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <img src="assets/logo.png" alt="YMPRESSME" />
-          <p>"Because you look so good when we do!" — custom t-shirt printing and DTF transfers for individuals, small businesses, and large events.</p>
-        </div>
-
-        <div class="footer-col">
-          <h4>Services</h4>
-          <ul>
-            <li><a href="tshirts.html">Custom T-Shirts</a></li>
-            <li><a href="dtf-transfers.html">DTF Transfers</a></li>
-            <li><a href="dtf-transfers.html#gang-sheets">Gang Sheets</a></li>
-            <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Company</h4>
-          <ul>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="faq.html">FAQ</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="contact.html">Get a Quote</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Contact</h4>
-          <div class="footer-contact-item">
-            <span class="fci-icon" aria-hidden="true">📧</span>
-            <a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a>
-          </div>
-          <div class="footer-contact-item">
-            <span class="fci-icon" aria-hidden="true">📱</span>
-            <a href="tel:+14099375272">(409) 937-5272</a>
-          </div>
-          <div class="footer-contact-item">
-            <span class="fci-icon" aria-hidden="true">📍</span>
-            <span>Dallas, TX</span>
-          </div>
-        </div>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/logo.png" alt="YMPRESSME" />
+        <p>"Because you look so good when we do!" — custom t-shirt printing and DTF transfers for individuals, small businesses, and events. Based in Dallas, TX.</p>
       </div>
-
-      <div class="footer-bottom">
-        <span>© <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
-        <span>Built with ❤️ for bold prints.</span>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="tshirts.html">Custom T-Shirts</a></li>
+          <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+          <li><a href="dtf-transfers.html#gang-sheets">Gang Sheets</a></li>
+          <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        </ul>
       </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a></li>
+          <li><a href="tel:+14099375272">(409) 937-5272</a></li>
+          <li>Dallas, TX</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
+      <span>Built with ❤️ for bold prints.</span>
     </div>
   </footer>
 
   <script src="js/main.js"></script>
+  <script src="js/homepage.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
   </script>

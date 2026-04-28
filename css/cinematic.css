@@ -1,0 +1,948 @@
+/* ============================================================
+   YMPRESSME — Cinematic Layer
+   Layered on css/styles.css. Adds motion, parallax, spotlight,
+   marquee, scroll-reveal, and dark cinematic homepage treatment.
+
+   Architecture:
+     - Universal utilities (work on any page): .btn-cinema, .reveal,
+       .cursor-glow, .grain
+     - Homepage-only dark theme: scoped under body.cinematic
+   ============================================================ */
+
+/* ===========================================================
+   UNIVERSAL UTILITIES (work on any page that opts in)
+   =========================================================== */
+
+/* ---------- Cursor spotlight + grain (fixed overlays) ---------- */
+.cursor-glow {
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%),
+    rgba(255, 105, 180, 0.18), transparent 60%);
+  transition: background 200ms linear;
+}
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 2; opacity: .07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.85'/%3E%3C/svg%3E");
+}
+
+/* ---------- Cinema buttons (work anywhere) ---------- */
+.btn-cinema {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 18px 32px;
+  border-radius: 12px;
+  font-family: var(--font-heading);
+  font-weight: 700; font-size: 14px;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  cursor: pointer; border: none;
+  transition: var(--transition-cinema);
+  text-decoration: none;
+  overflow: hidden; isolation: isolate;
+}
+.btn-cinema.primary {
+  background: var(--accent); color: #fff;
+  box-shadow: var(--shadow-pink);
+}
+.btn-cinema.primary::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(135deg, #ff8fce, #ff69b4);
+  z-index: -1; transition: opacity 0.35s;
+}
+.btn-cinema.primary::after {
+  content: ""; position: absolute;
+  top: 0; left: -120%; width: 80%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.8s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.btn-cinema.primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 48px rgba(255, 105, 180, 0.55);
+}
+.btn-cinema.primary:hover::after { left: 130%; }
+.btn-cinema .arrow { transition: transform 0.3s; display: inline-block; }
+.btn-cinema:hover .arrow { transform: translateX(4px); }
+.btn-cinema.ghost {
+  background: transparent; color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+.btn-cinema.ghost:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-3px);
+}
+.btn-cinema.ghost-dark {
+  background: transparent; color: var(--text);
+  border: 1.5px solid rgba(13, 27, 42, 0.25);
+}
+.btn-cinema.ghost-dark:hover {
+  border-color: var(--dark);
+  background: rgba(13, 27, 42, 0.04);
+  transform: translateY(-3px);
+}
+
+/* ---------- Reveal-on-scroll (works anywhere) ---------- */
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.85, 0.25, 1),
+              transform 0.9s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal.delay-1 { transition-delay: 0.1s; }
+.reveal.delay-2 { transition-delay: 0.2s; }
+.reveal.delay-3 { transition-delay: 0.3s; }
+.reveal.delay-4 { transition-delay: 0.4s; }
+
+/* ---------- Sticky-nav scroll state (works on any nav.navbar) ---------- */
+.navbar.scrolled {
+  background: rgba(13, 27, 42, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  transition: background 0.35s ease, backdrop-filter 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* ===========================================================
+   HOMEPAGE CINEMATIC THEME (body.cinematic only)
+   =========================================================== */
+
+body.cinematic {
+  background: var(--dark);
+  color: var(--fg-on-dark);
+  overflow-x: hidden;
+}
+
+/* ---------- Cinematic nav (overrides sticky → fixed) ---------- */
+body.cinematic .navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: transparent;
+  height: auto;
+  padding: 18px 36px;
+  box-shadow: none;
+  transition: background 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease, backdrop-filter 0.35s ease;
+}
+body.cinematic .navbar.scrolled { padding: 12px 36px; }
+body.cinematic .nav-inner { padding: 0; max-width: none; }
+body.cinematic .nav-logo img {
+  height: 56px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+body.cinematic .nav-links {
+  display: flex; gap: 4px; align-items: center;
+}
+body.cinematic .nav-links a {
+  position: relative;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12.5px; letter-spacing: 0.8px;
+  background: transparent;
+}
+body.cinematic .nav-links a::after {
+  content: "";
+  position: absolute; left: 1rem; right: 1rem; bottom: 6px;
+  height: 2px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+body.cinematic .nav-links a:hover { color: #fff; background: transparent; }
+body.cinematic .nav-links a:hover::after,
+body.cinematic .nav-links a.active::after { transform: scaleX(1); }
+body.cinematic .nav-cta a {
+  background: var(--accent) !important;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+  padding: 0.6rem 1.2rem !important;
+}
+body.cinematic .nav-cta a::after { display: none; }
+body.cinematic .nav-cta a:hover {
+  background: var(--accent-dark) !important;
+  transform: translateY(-2px);
+}
+
+/* ---------- Cinematic hero ---------- */
+body.cinematic .hero {
+  position: relative;
+  min-height: 100vh;
+  padding: 140px 36px 80px;
+  background: none;
+  display: block;
+  overflow: hidden; isolation: isolate;
+}
+body.cinematic .hero::before,
+body.cinematic .hero::after { content: none; }
+body.cinematic .hero-bg {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255, 105, 180, 0.35) 0%, transparent 55%),
+    radial-gradient(circle at 10% 80%, rgba(0, 123, 255, 0.45) 0%, transparent 55%),
+    linear-gradient(135deg, #0d1b2a 0%, #102a4c 60%, #0d1b2a 100%);
+}
+body.cinematic .hero-orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1;
+  animation: float 16s ease-in-out infinite;
+}
+body.cinematic .hero-orb.pink {
+  width: 520px; height: 520px;
+  background: rgba(255, 105, 180, 0.45);
+  top: -120px; right: -80px;
+}
+body.cinematic .hero-orb.blue {
+  width: 600px; height: 600px;
+  background: rgba(0, 123, 255, 0.55);
+  bottom: -180px; left: -120px;
+  animation-delay: -8s;
+}
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(40px, -30px, 0); }
+}
+
+body.cinematic .hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 60px; max-width: 1300px;
+  margin: 0 auto;
+  align-items: center;
+  min-height: calc(100vh - 220px);
+  position: relative; z-index: 1;
+}
+body.cinematic .hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255, 105, 180, 0.12);
+  border: 1px solid rgba(255, 105, 180, 0.4);
+  color: var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-family: var(--font-heading); font-weight: 700;
+  font-size: 11.5px; text-transform: uppercase; letter-spacing: 1.8px;
+  margin-bottom: 28px; backdrop-filter: blur(8px);
+}
+body.cinematic .hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(1.4); }
+}
+
+body.cinematic .hero h1 {
+  font-family: var(--font-heading); font-weight: 900;
+  font-size: clamp(48px, 7vw, 92px);
+  line-height: 0.98; letter-spacing: -1.5px;
+  color: #fff; margin: 0 0 24px;
+}
+body.cinematic .hero h1 .reveal-word {
+  display: inline-block; overflow: hidden; vertical-align: bottom;
+}
+body.cinematic .hero h1 .reveal-word > span {
+  display: inline-block; transform: translateY(110%); opacity: 0;
+  animation: rise 0.9s cubic-bezier(0.2, 0.85, 0.25, 1) forwards;
+}
+@keyframes rise { to { transform: translateY(0); opacity: 1; } }
+body.cinematic .hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, #ff8fce 0%, #ff69b4 60%, #d94da2 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  position: relative;
+}
+body.cinematic .hero-sub {
+  font-size: 19px; line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 540px; margin: 0 0 36px;
+}
+body.cinematic .hero-ctas {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+body.cinematic .hero-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 32px; max-width: 540px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 0;
+}
+body.cinematic .hero-stat strong {
+  display: block;
+  font-family: var(--font-heading); font-weight: 900;
+  font-size: 38px; line-height: 1;
+  background: linear-gradient(135deg, #fff 0%, #d4e9ff 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+body.cinematic .hero-stat span {
+  display: block; font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-top: 8px;
+  font-family: var(--font-heading); font-weight: 600;
+}
+
+/* Hero stage: collage + floating shirt */
+body.cinematic .hero-stage {
+  position: relative; width: 100%;
+  aspect-ratio: 1/1; perspective: 1600px;
+}
+body.cinematic .hero-stage::before {
+  content: ""; position: absolute; inset: -10%; z-index: -1;
+  background: conic-gradient(from 0deg at 50% 50%,
+    rgba(255, 105, 180, 0), rgba(0, 123, 255, 0.2),
+    rgba(255, 105, 180, 0.35), rgba(0, 123, 255, 0.2),
+    rgba(255, 105, 180, 0));
+  filter: blur(60px); opacity: 0.7;
+  animation: spin 24s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+body.cinematic .photo-card {
+  position: absolute;
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 8px 24px rgba(255, 105, 180, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  --px: 0px; --py: 0px; --rot: 0deg;
+  transform: translate3d(var(--px), var(--py), 0) rotate(var(--rot));
+  transition: box-shadow 0.5s ease;
+}
+body.cinematic .photo-card img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+body.cinematic .photo-card::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.3) 100%);
+  pointer-events: none;
+}
+body.cinematic .photo-1 {
+  width: 52%; height: 60%; top: 4%; left: 2%;
+  z-index: 3; --rot: -5deg;
+  animation: cardFloatA 7s ease-in-out infinite;
+}
+body.cinematic .photo-2 {
+  width: 44%; height: 38%; top: 6%; right: 2%;
+  z-index: 2; --rot: 5deg;
+  animation: cardFloatB 8s ease-in-out infinite;
+}
+body.cinematic .photo-3 {
+  width: 42%; height: 36%; bottom: 4%; left: 16%;
+  z-index: 4; --rot: -2deg;
+  animation: cardFloatA 9s ease-in-out infinite reverse;
+}
+@keyframes cardFloatA {
+  0%, 100% { transform: translate3d(var(--px), var(--py), 0) rotate(var(--rot)); }
+  50%      { transform: translate3d(calc(var(--px) + 4px), calc(var(--py) - 8px), 0) rotate(var(--rot)); }
+}
+@keyframes cardFloatB {
+  0%, 100% { transform: translate3d(var(--px), var(--py), 0) rotate(var(--rot)); }
+  50%      { transform: translate3d(calc(var(--px) - 4px), calc(var(--py) - 6px), 0) rotate(var(--rot)); }
+}
+
+body.cinematic .floating-shirt {
+  position: absolute;
+  right: 0%; bottom: 0%;
+  width: 38%; height: 48%;
+  z-index: 5;
+  --px: 0px; --py: 0px;
+  transform: translate3d(var(--px), var(--py), 0) rotate(6deg);
+  animation: shirtBob 6s ease-in-out infinite;
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.6))
+          drop-shadow(0 0 30px rgba(255, 105, 180, 0.25));
+}
+@keyframes shirtBob {
+  0%, 100% { transform: translate3d(var(--px), var(--py), 0) rotate(6deg); }
+  50%      { transform: translate3d(var(--px), calc(var(--py) - 12px), 0) rotate(7deg); }
+}
+body.cinematic .shirt-3d {
+  position: relative; width: 100%; height: 100%;
+}
+body.cinematic .shirt-3d svg {
+  width: 100%; height: 100%; display: block;
+}
+body.cinematic .logo-placeholder {
+  position: absolute; top: 42%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  border: 2.5px dashed rgba(255, 105, 180, 0.75);
+  padding: 10px 16px; border-radius: 8px;
+  background: rgba(13, 27, 42, 0.45);
+  font-family: var(--font-heading); font-weight: 900;
+  color: #ff8fce;
+  text-shadow: 0 0 14px rgba(255, 105, 180, 0.6);
+  letter-spacing: 1px; line-height: 1; white-space: nowrap;
+}
+body.cinematic .logo-line { font-size: 11px; }
+body.cinematic .logo-line:nth-child(2) {
+  font-size: 14px; color: #fff;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.4);
+}
+body.cinematic .floating-tag {
+  position: absolute; top: -10px; right: -8px;
+  background: var(--accent); color: #fff;
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: 10px; padding: 5px 11px; border-radius: 50px;
+  box-shadow: 0 8px 22px rgba(255, 105, 180, 0.55);
+  letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap;
+  animation: pulse 2s ease-in-out infinite;
+  z-index: 6;
+}
+
+/* ---------- Marquee ---------- */
+body.cinematic .marquee {
+  background: var(--dark);
+  border-block: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden; padding: 22px 0;
+  position: relative;
+}
+body.cinematic .marquee-track {
+  display: flex; gap: 56px;
+  animation: scroll-x 28s linear infinite;
+  width: max-content; align-items: center;
+}
+body.cinematic .marquee-item {
+  display: flex; align-items: center; gap: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-heading); font-weight: 700;
+  font-size: 18px; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+body.cinematic .marquee-item .star {
+  color: var(--accent); font-size: 22px;
+}
+@keyframes scroll-x { to { transform: translateX(-50%); } }
+
+/* ---------- Cinematic sections ---------- */
+body.cinematic section {
+  padding: 120px 36px;
+  position: relative;
+}
+body.cinematic .container {
+  max-width: 1300px; margin: 0 auto;
+  position: relative; z-index: 1;
+  padding: 0;
+}
+body.cinematic .section-head {
+  text-align: center; max-width: 720px;
+  margin: 0 auto 80px;
+}
+body.cinematic .section-eyebrow {
+  display: inline-block;
+  color: var(--accent);
+  font-family: var(--font-heading); font-weight: 700;
+  font-size: 12px; text-transform: uppercase;
+  letter-spacing: 3px; margin-bottom: 16px;
+}
+body.cinematic .section-head h2 {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.05; letter-spacing: -1px;
+  color: #fff; margin: 0 0 16px;
+}
+body.cinematic .section-head h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, #ff8fce, #ff69b4 60%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+body.cinematic .section-head p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 17px; line-height: 1.6; margin: 0;
+}
+
+/* ---------- Services grid (6-card) ---------- */
+body.cinematic .services-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+}
+body.cinematic .service-card {
+  display: flex; flex-direction: column;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px; overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.5s cubic-bezier(0.2, 0.85, 0.25, 1),
+              border-color 0.35s, box-shadow 0.5s;
+  backdrop-filter: blur(12px);
+  box-shadow: none;
+}
+body.cinematic .service-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 105, 180, 0.4);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(255, 105, 180, 0.15);
+}
+body.cinematic .service-card.featured {
+  border-color: rgba(255, 105, 180, 0.35);
+  background: linear-gradient(165deg, rgba(255, 105, 180, 0.12) 0%, rgba(0, 123, 255, 0.06) 100%);
+}
+body.cinematic .service-photo {
+  aspect-ratio: 16/10; background: #0a0a14;
+  overflow: hidden; position: relative;
+  height: auto;
+}
+body.cinematic .service-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+body.cinematic .service-card:hover .service-photo img {
+  transform: scale(1.08);
+}
+body.cinematic .service-photo::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(13, 27, 42, 0.5) 100%);
+  pointer-events: none;
+}
+body.cinematic .service-body { padding: 24px 26px 28px; }
+body.cinematic .service-body h3 {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: 22px; color: #fff;
+  margin: 0 0 8px; letter-spacing: -0.3px;
+}
+body.cinematic .service-body p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px; line-height: 1.55;
+  margin: 0 0 18px;
+}
+body.cinematic .service-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--accent);
+  font-family: var(--font-heading); font-weight: 700;
+  font-size: 12.5px; text-transform: uppercase;
+  letter-spacing: 1px; transition: gap 0.3s;
+  background: transparent;
+}
+body.cinematic .service-card:hover .service-cta { gap: 14px; }
+
+/* ---------- Why Choose Us ---------- */
+body.cinematic .why {
+  background: linear-gradient(180deg, var(--dark) 0%, var(--darker) 100%);
+}
+body.cinematic .why-grid {
+  display: grid; grid-template-columns: 1fr 1.4fr;
+  gap: 64px; align-items: start;
+}
+body.cinematic .why-head h2 {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: clamp(36px, 4.5vw, 54px);
+  line-height: 1.05; letter-spacing: -1px;
+  color: #fff; margin: 0;
+}
+body.cinematic .why-head h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, #ff8fce, #ff69b4);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+body.cinematic .why-points {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+}
+body.cinematic .why-points li {
+  display: flex; gap: 16px;
+}
+body.cinematic .why-icon {
+  width: 50px; height: 50px; min-width: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.18), rgba(0, 123, 255, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid; place-items: center;
+  font-size: 22px;
+}
+body.cinematic .why-points strong {
+  display: block;
+  font-family: var(--font-heading); font-weight: 800;
+  color: #fff; font-size: 16px;
+  margin-bottom: 4px;
+}
+body.cinematic .why-points p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13.5px; line-height: 1.5;
+}
+
+/* ---------- Process ---------- */
+body.cinematic .process {
+  background: linear-gradient(180deg, var(--dark) 0%, var(--darker) 100%);
+}
+body.cinematic .steps {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0; position: relative;
+}
+body.cinematic .steps::before {
+  content: "";
+  position: absolute; top: 36px; left: 12%; right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.5), rgba(0, 123, 255, 0.5), transparent);
+}
+body.cinematic .step-c {
+  text-align: center; padding: 0 18px;
+  position: relative;
+  flex: none;
+}
+body.cinematic .step-c .num {
+  width: 72px; height: 72px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  display: grid; place-items: center;
+  font-family: var(--font-heading); font-weight: 900;
+  font-size: 24px; color: #fff;
+  box-shadow: 0 16px 36px rgba(0, 123, 255, 0.4);
+  position: relative; z-index: 2;
+  border: 4px solid var(--dark);
+}
+body.cinematic .step-c:nth-child(2) .num {
+  background: linear-gradient(135deg, var(--accent), #b03f7e);
+  box-shadow: 0 16px 36px rgba(255, 105, 180, 0.4);
+}
+body.cinematic .step-c:nth-child(4) .num {
+  background: linear-gradient(135deg, var(--accent), var(--primary));
+  box-shadow: 0 16px 36px rgba(255, 105, 180, 0.3);
+}
+body.cinematic .step-c h4 {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: 19px; color: #fff;
+  margin: 0 0 8px;
+}
+body.cinematic .step-c p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px; line-height: 1.55; margin: 0;
+}
+
+/* ---------- Showcase gallery ---------- */
+body.cinematic .showcase { padding-bottom: 120px; }
+body.cinematic .showcase-track {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  grid-auto-rows: 240px;
+}
+body.cinematic .showcase-tile {
+  border-radius: 14px; overflow: hidden;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.2, 0.85, 0.25, 1);
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+body.cinematic .showcase-tile.wide { grid-column: span 2; }
+body.cinematic .showcase-tile:nth-child(2n) { transform: translateY(24px); }
+body.cinematic .showcase-tile:hover {
+  transform: translateY(0) scale(1.05) !important;
+  z-index: 5;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(255, 105, 180, 0.3);
+}
+body.cinematic .showcase-tile img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 0.85, 0.25, 1);
+  display: block;
+}
+body.cinematic .showcase-tile:hover img { transform: scale(1.1); }
+body.cinematic .showcase-tile::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
+  opacity: 0.5; transition: opacity 0.4s;
+  pointer-events: none;
+}
+body.cinematic .showcase-tile:hover::after { opacity: 0.2; }
+
+/* ---------- Pricing (cinematic cards) ---------- */
+body.cinematic .pricing-wrap {
+  background: linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%);
+}
+body.cinematic .price-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+}
+body.cinematic .price-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px; padding: 36px 32px;
+  backdrop-filter: blur(20px);
+  transition: all 0.5s cubic-bezier(0.2, 0.85, 0.25, 1);
+  position: relative; overflow: hidden;
+}
+body.cinematic .price-card.featured {
+  background: linear-gradient(165deg, rgba(255, 105, 180, 0.18) 0%, rgba(0, 123, 255, 0.12) 100%);
+  border-color: rgba(255, 105, 180, 0.4);
+  transform: scale(1.04);
+}
+body.cinematic .price-card.featured::before {
+  content: "Most Popular";
+  position: absolute; top: 20px; right: 20px;
+  background: var(--accent); color: #fff;
+  padding: 5px 12px; border-radius: 50px;
+  font-family: var(--font-heading); font-weight: 700;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1px;
+}
+body.cinematic .price-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 105, 180, 0.4);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+body.cinematic .price-card.featured:hover {
+  transform: scale(1.04) translateY(-6px);
+}
+body.cinematic .price-card h3 {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: 20px; color: #fff;
+  margin: 0 0 8px;
+}
+body.cinematic .price-card .desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px; margin: 0 0 24px;
+}
+body.cinematic .price-card .amt {
+  font-family: var(--font-heading); font-weight: 900;
+  font-size: 48px; color: #fff;
+  line-height: 1; letter-spacing: -1px;
+}
+body.cinematic .price-card .amt small {
+  font-size: 16px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 4px;
+}
+body.cinematic .price-card .unit {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  margin: 6px 0 28px;
+}
+body.cinematic .price-card ul {
+  list-style: none; padding: 0; margin: 0 0 32px;
+}
+body.cinematic .price-card ul li {
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  display: flex; gap: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+}
+body.cinematic .price-card ul li::before {
+  content: "✓";
+  color: var(--accent); font-weight: 800;
+}
+body.cinematic .price-card .btn-cinema {
+  width: 100%; justify-content: center;
+}
+body.cinematic .price-card.featured .btn-cinema.primary {
+  box-shadow: 0 12px 36px rgba(255, 105, 180, 0.55);
+}
+body.cinematic .price-card .btn-cinema.ghost {
+  color: #fff; border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Testimonials (cinematic) ---------- */
+body.cinematic .testi-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+body.cinematic .testi-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px; padding: 32px;
+  backdrop-filter: blur(20px);
+  border-left: 4px solid var(--accent);
+  transition: all 0.5s;
+}
+body.cinematic .testi-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.06);
+}
+body.cinematic .testi-stars {
+  color: #ffd700; font-size: 16px;
+  letter-spacing: 4px; margin-bottom: 16px;
+}
+body.cinematic .testi-text {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 15px; line-height: 1.6;
+  font-style: italic; margin: 0 0 20px;
+}
+body.cinematic .testi-author {
+  display: flex; gap: 12px; align-items: center;
+}
+body.cinematic .testi-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  display: grid; place-items: center;
+  color: #fff;
+  font-family: var(--font-heading); font-weight: 700;
+}
+body.cinematic .testi-name {
+  font-family: var(--font-heading); font-weight: 700;
+  color: #fff; font-size: 14px;
+}
+body.cinematic .testi-role {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px; margin-top: 2px;
+}
+
+/* ---------- Mega CTA ---------- */
+body.cinematic .mega-cta {
+  padding: 100px 36px;
+  position: relative; overflow: hidden;
+  isolation: isolate;
+}
+body.cinematic .mega-cta::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(circle at 30% 50%, rgba(255, 105, 180, 0.45), transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(0, 123, 255, 0.55), transparent 55%),
+    linear-gradient(135deg, var(--secondary) 0%, #001f3f 100%);
+}
+body.cinematic .mega-cta::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 70%);
+}
+body.cinematic .mega-cta-inner {
+  max-width: 1300px; margin: 0 auto;
+  display: grid; grid-template-columns: 1.3fr 1fr;
+  gap: 48px; align-items: center;
+}
+body.cinematic .mega-cta-copy h2 {
+  font-family: var(--font-heading); font-weight: 900;
+  font-size: clamp(40px, 5.5vw, 68px);
+  line-height: 1.02; color: #fff;
+  margin: 0 0 18px; letter-spacing: -1.5px;
+}
+body.cinematic .mega-cta-copy h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, #ff8fce, #ffd1e8);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+body.cinematic .mega-cta-copy p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+  margin: 0 0 32px;
+  max-width: 540px;
+}
+body.cinematic .mega-cta-copy .hero-ctas { margin: 0; }
+body.cinematic .mega-cta-art { position: relative; }
+body.cinematic .mega-cta-art img {
+  width: 100%; max-width: 480px;
+  margin-left: auto; display: block;
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  animation: shirtBob 6s ease-in-out infinite;
+}
+
+/* ---------- Footer (cinematic) ---------- */
+body.cinematic .footer {
+  background: var(--darker);
+  padding: 80px 36px 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+body.cinematic .footer-grid {
+  max-width: 1300px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  padding-bottom: 56px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+body.cinematic .footer-brand img {
+  height: 80px; margin-bottom: 16px;
+}
+body.cinematic .footer-brand p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px; line-height: 1.6;
+  max-width: 320px; margin: 0 0 20px;
+}
+body.cinematic .footer-col h4 {
+  font-family: var(--font-heading); font-weight: 700;
+  color: #fff; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  margin: 0 0 16px;
+}
+body.cinematic .footer-col ul li {
+  margin-bottom: 10px;
+}
+body.cinematic .footer-col ul a {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  transition: color 0.25s;
+}
+body.cinematic .footer-col ul a:hover {
+  color: var(--accent);
+}
+body.cinematic .footer-bottom {
+  max-width: 1300px;
+  margin: 32px auto 0;
+  display: flex; justify-content: space-between;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  flex-wrap: wrap; gap: 12px;
+}
+
+/* ===========================================================
+   RESPONSIVE
+   =========================================================== */
+@media (max-width: 1024px) {
+  body.cinematic .hero-grid { grid-template-columns: 1fr; }
+  body.cinematic .hero-stage { display: none; }
+  body.cinematic .services-grid,
+  body.cinematic .price-grid,
+  body.cinematic .testi-grid {
+    grid-template-columns: 1fr;
+  }
+  body.cinematic .why-grid {
+    grid-template-columns: 1fr; gap: 32px;
+  }
+  body.cinematic .why-points {
+    grid-template-columns: 1fr;
+  }
+  body.cinematic .mega-cta-inner {
+    grid-template-columns: 1fr; text-align: center;
+  }
+  body.cinematic .mega-cta-art { display: none; }
+  body.cinematic .showcase-track {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: 200px;
+  }
+  body.cinematic .showcase-tile.wide { grid-column: span 2; }
+  body.cinematic .showcase-tile:nth-child(2n) { transform: none; }
+  body.cinematic .steps {
+    grid-template-columns: repeat(2, 1fr); gap: 40px;
+  }
+  body.cinematic .steps::before { display: none; }
+  body.cinematic .footer-grid { grid-template-columns: 1fr 1fr; }
+  body.cinematic .price-card.featured { transform: none; }
+}
+
+@media (max-width: 640px) {
+  body.cinematic section { padding: 80px 20px; }
+  body.cinematic .hero { padding: 120px 20px 60px; }
+  body.cinematic .navbar { padding: 14px 20px; }
+  body.cinematic .navbar.scrolled { padding: 10px 20px; }
+  body.cinematic .footer { padding: 60px 20px 30px; }
+  body.cinematic .footer-grid { grid-template-columns: 1fr; }
+  body.cinematic .nav-links a:not(.nav-cta a) { display: none; }
+  body.cinematic .price-card { padding: 28px 22px; }
+  body.cinematic .testi-card { padding: 24px; }
+}
+
+/* ===========================================================
+   ACCESSIBILITY: reduced motion
+   =========================================================== */
+@media (prefers-reduced-motion: reduce) {
+  body.cinematic .hero-orb,
+  body.cinematic .hero-stage::before,
+  body.cinematic .photo-1,
+  body.cinematic .photo-2,
+  body.cinematic .photo-3,
+  body.cinematic .floating-shirt,
+  body.cinematic .mega-cta-art img,
+  body.cinematic .marquee-track,
+  body.cinematic .hero-eyebrow .dot,
+  body.cinematic .floating-tag,
+  body.cinematic .hero h1 .reveal-word > span {
+    animation: none !important;
+  }
+  body.cinematic .hero h1 .reveal-word > span {
+    transform: none; opacity: 1;
+  }
+  .reveal { transition: none; opacity: 1; transform: none; }
+  .btn-cinema, .btn-cinema * { transition: none !important; }
+}

@@ -7,11 +7,14 @@
   <meta name="description" content="Get answers to the most common questions about YMPRESSME's custom t-shirt printing, DTF transfers, gang sheets, file requirements, turnaround times, and shipping." />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
 </head>
 <body>
 
+  <div class="grain"></div>
+
   <!-- ====== NAVIGATION ====== -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
       <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
         <img src="assets/logo.png" alt="YMPRESSME Logo" />
@@ -439,7 +442,7 @@
             <div style="font-size:3rem;margin-bottom:1rem;" aria-hidden="true">💬</div>
             <h3>Still have questions?</h3>
             <p style="color:var(--gray);margin-bottom:1.5rem;">We're happy to help. Reach out and we'll get back to you within a few hours.</p>
-            <a href="contact.html" class="btn btn-primary btn-lg">Contact Us</a>
+            <a href="contact.html" class="btn-cinema primary">Contact Us <span class="arrow">→</span></a>
           </div>
         </div>
 
@@ -485,6 +488,7 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script src="js/homepage.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
     initAccordion('.accordion');

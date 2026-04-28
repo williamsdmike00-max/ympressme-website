@@ -27,9 +27,11 @@ body {
 :root {
   --primary:      #007bff;
   --accent:       #ff69b4;
+  --accent-dark:  #e0569d;
   --secondary:    #0056b3;
   --white:        #ffffff;
   --dark:         #0d1b2a;
+  --darker:       #050a14;
   --gray-light:   #f0f6ff;
   --gray:         #6c757d;
   --text:         #1a1a2e;
@@ -37,13 +39,28 @@ body {
   --success:      #28a745;
   --shadow:       0 4px 20px rgba(0,123,255,0.12);
   --shadow-hover: 0 10px 35px rgba(0,123,255,0.22);
+  --shadow-pink:  0 12px 36px rgba(255,105,180,0.45);
   --radius:       12px;
   --radius-sm:    8px;
+  --radius-pill:  50px;
   --transition:   all 0.3s ease;
+  --transition-cinema: all 0.35s cubic-bezier(0.2, 0.85, 0.25, 1);
   --gradient:     linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+  --gradient-pink: linear-gradient(135deg, #ff8fce 0%, #ff69b4 60%, #d94da2 100%);
   --font-heading: 'Montserrat', sans-serif;
   --font-body:    'Open Sans', sans-serif;
   --nav-height:   110px;
+
+  /* Cinematic aliases (used by css/cinematic.css) */
+  --ymp-blue:        var(--primary);
+  --ymp-blue-dark:   var(--secondary);
+  --ymp-pink:        var(--accent);
+  --ymp-pink-dark:   var(--accent-dark);
+  --ymp-navy:        var(--dark);
+  --ymp-white:       var(--white);
+  --fg-on-dark:      var(--white);
+  --fg-on-dark-2:    rgba(255, 255, 255, 0.82);
+  --fg-on-dark-3:    rgba(255, 255, 255, 0.65);
 }
 
 /* ---- Typography ---- */
