@@ -41,14 +41,16 @@ window.YMP._uppyRegistry = new Map();
 function mountUppy(mountEl) {
   const mountId = mountEl.id;
   if (!mountId) return;
-  const maxFiles = parseInt(mountEl.dataset.maxFiles, 10) || 5;
+  const maxFilesRaw = parseInt(mountEl.dataset.maxFiles, 10);
+  // null = unlimited in Uppy's restrictions; default to a generous 20
+  const maxFiles = Number.isFinite(maxFilesRaw) && maxFilesRaw > 0 ? maxFilesRaw : 20;
   const required = mountEl.dataset.required === 'true';
-  const note = mountEl.dataset.note || 'PNG, JPG, SVG, PDF, or ZIP — Max 50MB per file';
+  const note = mountEl.dataset.note ||
+    'Add multiple files at once — drag-drop, browse, or use your camera. Max 50MB per file.';
 
   const uppy = new Uppy({
     id: mountId,
     autoProceed: false,
-    allowMultipleUploadBatches: true,
     restrictions: {
       maxFileSize: MAX_FILE_SIZE,
       maxNumberOfFiles: maxFiles,
@@ -59,7 +61,7 @@ function mountUppy(mountEl) {
       target: '#' + mountId,
       inline: true,
       width: '100%',
-      height: 360,
+      height: 420,
       proudlyDisplayPoweredByUppy: false,
       showProgressDetails: true,
       hideUploadButton: true,
