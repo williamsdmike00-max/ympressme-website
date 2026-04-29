@@ -17,10 +17,6 @@ Ympressme website/
 ├── about.html                 — About page
 ├── faq.html                   — FAQ (accordion)
 ├── contact.html               — General contact + quote form
-├── package.json               — Declares @vercel/blob + resend deps for serverless functions
-├── api/
-│   ├── upload-token.js        — Issues Vercel Blob upload tokens for direct browser uploads
-│   └── send-inquiry.js        — Receives form data + Blob URLs, emails inquiry via Resend
 ├── css/
 │   ├── styles.css             — Light theme (forms, configurator, calculator)
 │   └── cinematic.css          — Dark cinematic theme (homepage only)
@@ -30,7 +26,7 @@ Ympressme website/
 │   ├── upload.js              — Drag-and-drop file upload with preview
 │   ├── gang-sheet-builder.js  — Canvas-based interactive gang sheet builder
 │   ├── homepage.js            — Cinematic homepage effects (cursor, parallax, marquee)
-│   └── inquiry-submit.js      — Shared form-submit helper (Blob upload + JSON to /api)
+│   └── inquiry-submit.js      — Shared form-submit helper (Supabase upload + Web3Forms POST)
 └── assets/
     └── logo.png               — YMPRESSME logo (place your file here)
 ```
@@ -46,19 +42,24 @@ assets/logo.png
 ```
 It's referenced throughout the site as `assets/logo.png`.
 
-### 2. Set Up Email Delivery (Vercel + Resend + Blob)
-All quote forms POST to a Vercel serverless function (`api/send-inquiry`). Files are uploaded directly from the browser to Vercel Blob storage and emailed as download links via Resend.
+### 2. Set Up Email Delivery (Supabase Storage + Web3Forms)
+All quote forms upload artwork directly to Supabase Storage from the browser, then POST the inquiry (with the Supabase URL) to Web3Forms, which emails it to `ympressme@yahoo.com`. No backend, no serverless functions, no Node deps — pure static site.
 
-**One-time setup (Vercel project dashboard):**
-1. **Enable Vercel Blob:** Storage tab → Create Blob store → Vercel auto-creates `BLOB_READ_WRITE_TOKEN`
-2. **Create Resend account** at [resend.com](https://resend.com) using the email address you want inquiries to land in. Generate an API key.
-3. **Add Vercel environment variables** (Settings → Environment Variables):
-   - `RESEND_API_KEY` — paste your Resend API key
-   - `INQUIRY_TO_EMAIL` — the inbox where inquiries should arrive (must match the email you signed up for Resend with, until a custom domain is verified)
-   - *(Optional)* `INQUIRY_FROM_ADDRESS` — defaults to `YMPRESSME Inquiries <onboarding@resend.dev>`. Override only after verifying a domain in Resend.
-4. **Redeploy** (push any commit, or click "Redeploy" in the dashboard) so the env vars take effect.
+**Configuration lives in `js/inquiry-submit.js`** (the Supabase URL, Supabase anon key, bucket name, and Web3Forms access key are baked in — both vendors design these keys to be public).
 
-> **Why this stack?** Vercel Blob handles files up to the 50MB form cap (bypasses Vercel's 4.5MB function body limit). Resend free tier covers 3,000 emails/month. No third-party form middleware required.
+**One-time Supabase setup:**
+1. In your Supabase project (`allstar-prints`) → **Storage** → create bucket `ympressme-uploads` with **Public bucket** ON
+2. On that bucket → **Policies** tab → New policy:
+   - Operation: **INSERT**
+   - Target roles: `anon`
+   - WITH CHECK expression: `bucket_id = 'ympressme-uploads'`
+   - This allows anonymous browser uploads (otherwise the form will fail at upload time)
+
+**One-time Web3Forms setup:**
+1. Sign up at [web3forms.com](https://web3forms.com) using `ympressme@yahoo.com`
+2. Copy your access key — paste it into `js/inquiry-submit.js` as `WEB3FORMS_ACCESS_KEY`
+
+> **Why this stack?** Supabase Storage handles files up to 50MB (free tier: 1GB total, 5GB/mo bandwidth). Web3Forms free tier covers 250 submissions/month with built-in spam protection. Zero backend code — Vercel just serves the static files.
 
 ### 3. Update Contact Info
 Search for and replace these placeholders across all HTML files:
@@ -177,9 +178,8 @@ Tested and working in:
 ## Quick Checklist Before Going Live
 
 - [ ] Logo added to `assets/logo.png`
-- [ ] Vercel Blob enabled (Storage tab in Vercel project)
-- [ ] `RESEND_API_KEY` env var set in Vercel
-- [ ] `INQUIRY_TO_EMAIL` env var set in Vercel (must match Resend signup email)
+- [ ] Supabase bucket `ympressme-uploads` created in `allstar-prints` project (public, with anon-INSERT policy)
+- [ ] Web3Forms account created and access key set in `js/inquiry-submit.js`
 - [ ] Email address in HTML updated (`ympressme@yahoo.com` → current contact email if changed)
 - [ ] Phone number updated
 - [ ] Location updated
