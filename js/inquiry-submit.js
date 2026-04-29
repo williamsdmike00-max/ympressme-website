@@ -1,31 +1,25 @@
 /**
- * YMPRESSME — inquiry-submit.js
  * Shared form-submission helper. Loaded as <script type="module">.
+ * Per-site config (Supabase + Web3Forms keys) lives in js/site-config.js —
+ * that's the file to edit when cloning this stack for a new client.
  *
  * Architecture (no backend, no Vercel functions):
  *  1. Customer-uploaded artwork files go directly to Supabase Storage
  *     (public bucket; URLs are unguessable; bucket has anon-INSERT policy).
  *  2. Form fields + Supabase URLs are POSTed to Web3Forms, which emails
- *     the inquiry to ympressme@yahoo.com with reply-to set to the customer.
+ *     the inquiry to the recipient configured on the access key, with
+ *     reply-to set to the customer's email.
  *
  * Exposes window.YMP.submitInquiry({...}) for the inline submit handlers
  * on contact.html, tshirts.html, dtf-transfers.html, gang-sheet-builder.html.
- *
- * The Supabase anon key and Web3Forms access key embedded below are
- * intentionally public — both vendors design these to live in client-side
- * code. Spam protection is the bucket's INSERT policy + Web3Forms' built-in
- * rate limiting + the honeypot field on each form.
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { SITE_CONFIG } from './site-config.js';
 
-const SUPABASE_URL = 'https://dgsdftbkpxpfhttgwhze.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnc2RmdGJrcHhwZmh0dGd3aHplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NjMxODksImV4cCI6MjA5MjUzOTE4OX0.Xa4_CzSG1LUd4LJKhS4EoHqJ7uYFH9djwevPP87CCvI';
-const SUPABASE_BUCKET = 'ympressme-uploads';
-const WEB3FORMS_ACCESS_KEY = 'fb862ae8-5d18-4daf-a634-e6dc5bc6bcf6';
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SITE_CONFIG.supabaseUrl, SITE_CONFIG.supabaseAnonKey);
 
 window.YMP = window.YMP || {};
 
@@ -35,14 +29,14 @@ window.YMP.uploadToStorage = async function (file) {
   const rand = Math.random().toString(36).slice(2, 8);
   const path = `inquiries/${Date.now()}-${rand}-${safeName}`;
   const { data, error } = await supabase.storage
-    .from(SUPABASE_BUCKET)
+    .from(SITE_CONFIG.supabaseBucket)
     .upload(path, file, {
       contentType: file.type || 'application/octet-stream',
       upsert: false,
     });
   if (error) throw new Error('Upload failed: ' + error.message);
   const { data: urlData } = supabase.storage
-    .from(SUPABASE_BUCKET)
+    .from(SITE_CONFIG.supabaseBucket)
     .getPublicUrl(data.path);
   return { url: urlData.publicUrl, path: data.path };
 };
@@ -63,9 +57,9 @@ window.YMP.submitInquiry = async function ({ formType, subject, fields, files, r
   }
 
   const payload = new FormData();
-  payload.append('access_key', WEB3FORMS_ACCESS_KEY);
-  payload.append('subject', subject || ('New ' + formType + ' — YMPRESSME'));
-  payload.append('from_name', 'YMPRESSME Website');
+  payload.append('access_key', SITE_CONFIG.web3formsAccessKey);
+  payload.append('subject', subject || ('New ' + formType + ' — ' + SITE_CONFIG.brandName));
+  payload.append('from_name', SITE_CONFIG.fromName);
   if (replyTo) payload.append('email', replyTo);
   payload.append('botcheck', honeypot || '');
   payload.append('Form Type', formType || 'Inquiry');
