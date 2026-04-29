@@ -236,6 +236,18 @@ ul { list-style: none; }
   background: var(--primary);
 }
 
+/* Uppy mount — guarantee the widget can't grow past its configured height
+   so its preview never overlaps form fields below it. */
+.ymp-upload {
+  max-width: 100%;
+  max-height: 420px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.ymp-upload .uppy-Dashboard {
+  max-height: 420px;
+}
+
 /* Hamburger */
 .nav-hamburger {
   display: flex;

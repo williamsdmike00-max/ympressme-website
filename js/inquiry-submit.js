@@ -66,6 +66,7 @@ function mountUppy(mountEl) {
       hideRetryButton: true,
       hideCancelButton: true,
       hideProgressAfterFinish: true,
+      singleFileFullScreen: false,
       note: note,
       doneButtonHandler: null,
     })
