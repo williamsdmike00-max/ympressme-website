@@ -180,6 +180,15 @@ body.cinematic .nav-cta a:hover {
   transform: translateY(-2px);
 }
 
+/* Upload Design CTA on cinematic homepage — primary blue */
+body.cinematic .nav-cta-upload a {
+  background: var(--primary) !important;
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+body.cinematic .nav-cta-upload a:hover {
+  background: var(--secondary) !important;
+}
+
 /* ---------- Cinematic hero ---------- */
 body.cinematic .hero {
   position: relative;

@@ -227,6 +227,15 @@ ul { list-style: none; }
 }
 .nav-cta a:hover { background: #e0569d !important; }
 
+/* Upload Design CTA — primary blue to differentiate from the pink Get a Quote button */
+.nav-cta-upload a {
+  background: var(--primary) !important;
+}
+.nav-cta-upload a:hover { background: var(--secondary) !important; }
+.nav-mobile .mob-cta a[href*="contactUploadArea"] {
+  background: var(--primary);
+}
+
 /* Hamburger */
 .nav-hamburger {
   display: flex;
