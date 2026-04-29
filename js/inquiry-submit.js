@@ -1,28 +1,114 @@
 /**
  * Shared form-submission helper. Loaded as <script type="module">.
- * Per-site config (Supabase + Web3Forms keys) lives in js/site-config.js —
- * that's the file to edit when cloning this stack for a new client.
+ * Per-site config (Supabase + Web3Forms keys) lives in js/site-config.js.
  *
  * Architecture (no backend, no Vercel functions):
- *  1. Customer-uploaded artwork files go directly to Supabase Storage
- *     (public bucket; URLs are unguessable; bucket has anon-INSERT policy).
- *  2. Form fields + Supabase URLs are POSTed to Web3Forms, which emails
- *     the inquiry to the recipient configured on the access key, with
- *     reply-to set to the customer's email.
+ *  1. Customer uses Uppy's Dashboard widget (local files + webcam) to
+ *     pick artwork. Files stay in Uppy's memory client-side.
+ *  2. On form submit, each Uppy file is uploaded directly to Supabase
+ *     Storage (public bucket; URLs are unguessable; bucket has anon
+ *     INSERT policy).
+ *  3. Form fields + Supabase URLs are POSTed to Web3Forms, which emails
+ *     the inquiry to the recipient configured on the access key.
  *
- * Exposes window.YMP.submitInquiry({...}) for the inline submit handlers
- * on contact.html, tshirts.html, dtf-transfers.html, gang-sheet-builder.html.
+ * Exposes:
+ *   window.YMP.submitInquiry({...}) — submit a form
+ *   window.YMP.getUppyFiles(mountId) — File[] currently picked in an Uppy
+ *
+ * Phase 2 (future): add Uppy's Url + GoogleDrive + Dropbox plugins +
+ * deploy a Companion server to unlock cloud-source uploads.
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import Uppy from 'https://esm.sh/@uppy/core@4.2.3';
+import Dashboard from 'https://esm.sh/@uppy/dashboard@4.1.2';
+import Webcam from 'https://esm.sh/@uppy/webcam@4.1.0';
 import { SITE_CONFIG } from './site-config.js';
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
+const ALLOWED_TYPES = ['.png', '.jpg', '.jpeg', '.svg', '.pdf', '.zip', 'image/*', 'application/pdf', 'application/zip'];
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 const supabase = createClient(SITE_CONFIG.supabaseUrl, SITE_CONFIG.supabaseAnonKey);
 
 window.YMP = window.YMP || {};
+window.YMP._uppyRegistry = new Map();
 
+/**
+ * Mount an Uppy Dashboard widget on a target element.
+ * Called for every <div class="ymp-upload" id="..."> on the page.
+ */
+function mountUppy(mountEl) {
+  const mountId = mountEl.id;
+  if (!mountId) return;
+  const maxFiles = parseInt(mountEl.dataset.maxFiles, 10) || 5;
+  const required = mountEl.dataset.required === 'true';
+  const note = mountEl.dataset.note || 'PNG, JPG, SVG, PDF, or ZIP — Max 50MB per file';
+
+  const uppy = new Uppy({
+    id: mountId,
+    autoProceed: false,
+    allowMultipleUploadBatches: true,
+    restrictions: {
+      maxFileSize: MAX_FILE_SIZE,
+      maxNumberOfFiles: maxFiles,
+      allowedFileTypes: ALLOWED_TYPES,
+    },
+  })
+    .use(Dashboard, {
+      target: '#' + mountId,
+      inline: true,
+      width: '100%',
+      height: 360,
+      proudlyDisplayPoweredByUppy: false,
+      showProgressDetails: true,
+      hideUploadButton: true,
+      hideRetryButton: true,
+      hideCancelButton: true,
+      hideProgressAfterFinish: true,
+      note: note,
+      doneButtonHandler: null,
+    })
+    .use(Webcam, {
+      target: Dashboard,
+      modes: ['picture'],
+      mirror: true,
+      showRecordingLength: false,
+    });
+
+  window.YMP._uppyRegistry.set(mountId, uppy);
+  if (required) mountEl.dataset.required = 'true';
+}
+
+/** Retrieve the picked files (as native File objects) from an Uppy mount. */
+window.YMP.getUppyFiles = function (mountId) {
+  const uppy = window.YMP._uppyRegistry.get(mountId);
+  if (!uppy) return [];
+  return uppy.getFiles().map(function (uppyFile) {
+    const data = uppyFile.data;
+    if (data instanceof File) return data;
+    return new File([data], uppyFile.name || 'upload', { type: uppyFile.type || 'application/octet-stream' });
+  });
+};
+
+/** Clear all files from an Uppy mount (used after successful submit). */
+window.YMP.clearUppyFiles = function (mountId) {
+  const uppy = window.YMP._uppyRegistry.get(mountId);
+  if (uppy) uppy.cancelAll();
+};
+
+/** Initialize all Uppy mounts present in the DOM at load time. */
+function initAllUppyMounts() {
+  document.querySelectorAll('.ymp-upload').forEach(mountUppy);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAllUppyMounts);
+} else {
+  initAllUppyMounts();
+}
+
+/** Upload a single File to Supabase Storage; returns { url, path } */
 window.YMP.uploadToStorage = async function (file) {
   if (!file) return null;
   const safeName = (file.name || 'upload').replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -43,16 +129,15 @@ window.YMP.uploadToStorage = async function (file) {
 
 window.YMP.submitInquiry = async function ({ formType, subject, fields, files, replyTo, honeypot }) {
   const uploaded = [];
-  const safeFiles = (files || []).filter((f) => f && f.file);
+  const safeFiles = (files || []).filter(Boolean);
 
   for (const f of safeFiles) {
-    const result = await window.YMP.uploadToStorage(f.file);
+    const file = (f && f.file) ? f.file : f;
+    const label = (f && f.label) ? f.label : (file.name || 'Artwork');
+    if (!file) continue;
+    const result = await window.YMP.uploadToStorage(file);
     if (result && result.url) {
-      uploaded.push({
-        url: result.url,
-        label: f.label || f.file.name,
-        size: f.file.size,
-      });
+      uploaded.push({ url: result.url, label, size: file.size });
     }
   }
 
@@ -73,8 +158,6 @@ window.YMP.submitInquiry = async function ({ formType, subject, fields, files, r
   if (uploaded.length === 0) {
     payload.append('Attached Files', 'None');
   } else {
-    // Each artwork gets two fields so the URL sits alone on its line —
-    // that lets Yahoo / Outlook / Gmail auto-linkify it as a clickable link.
     uploaded.forEach((f, i) => {
       const num = i + 1;
       const sizeStr = f.size ? ' (' + formatSize(f.size) + ')' : '';

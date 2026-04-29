@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="https://releases.transloadit.com/uppy/v4.2.3/uppy.min.css" />
 </head>
 <body>
 
@@ -200,21 +201,7 @@
                 <!-- File Upload (optional for general contact) -->
                 <div class="form-group">
                   <label>Upload Artwork (optional)</label>
-                  <div class="upload-area" id="contactUploadArea" role="button" aria-label="Upload design file">
-                    <input type="file" id="contactFileInput" name="Artwork File" accept=".png,.jpg,.jpeg,.svg,.pdf,.zip" aria-label="Select design file" />
-                    <span class="upload-icon" aria-hidden="true">📎</span>
-                    <h4>Drop a file here or click to browse</h4>
-                    <p>PNG, JPG, SVG, PDF, or ZIP — Max 50MB</p>
-                    <span class="upload-formats">Not required to get a quote</span>
-                  </div>
-                  <div class="upload-preview" id="contactUploadPreview">
-                    <img src="" alt="Preview" />
-                    <div class="upload-preview-info">
-                      <strong></strong>
-                      <span></span>
-                    </div>
-                    <button class="upload-remove" type="button" aria-label="Remove file">×</button>
-                  </div>
+                  <div class="ymp-upload" id="contactUppy" data-max-files="5" data-note="PNG, JPG, SVG, PDF, or ZIP — Max 50MB. Drag-drop, browse, or use your camera."></div>
                 </div>
 
                 <div class="form-group">
@@ -320,14 +307,10 @@
   </footer>
 
   <script src="js/main.js"></script>
-  <script src="js/upload.js"></script>
   <script src="js/homepage.js"></script>
   <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
-
-    /* ---- Upload ---- */
-    initUpload('contactUploadArea', 'contactUploadPreview', 'contactFileInput');
 
     /* ---- Form submission ---- */
     document.getElementById('contactForm').addEventListener('submit', async function (e) {
@@ -358,18 +341,20 @@
         const fd = new FormData(this);
         const fields = {};
         for (const [k, v] of fd.entries()) {
-          if (k === '_subject' || k === '_gotcha' || k === 'Artwork File') continue;
+          if (k === '_subject' || k === '_gotcha') continue;
           if (v) fields[k] = v;
         }
 
-        const fileInput = document.getElementById('contactFileInput');
-        const file = fileInput && fileInput.files && fileInput.files[0];
+        const pickedFiles = window.YMP.getUppyFiles('contactUppy') || [];
+        const files = pickedFiles.map(function (file) {
+          return { file, label: 'Artwork — ' + file.name };
+        });
 
         await window.YMP.submitInquiry({
           formType: 'Quote Request',
           subject: fd.get('_subject') || 'New Quote Request — YMPRESSME',
           fields,
-          files: file ? [{ file, label: 'Artwork — ' + file.name }] : [],
+          files,
           replyTo: fd.get('Email') || null,
           honeypot: fd.get('_gotcha') || '',
         });
@@ -377,7 +362,7 @@
         document.getElementById('contactSuccess').classList.remove('hidden');
         document.getElementById('contactError').classList.add('hidden');
         this.reset();
-        document.getElementById('contactUploadPreview').classList.remove('show');
+        window.YMP.clearUppyFiles('contactUppy');
         showToast('Quote request sent! We\'ll be in touch soon.', 'success');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {

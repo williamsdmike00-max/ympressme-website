@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="https://releases.transloadit.com/uppy/v4.2.3/uppy.min.css" />
 </head>
 <body>
 
@@ -422,22 +423,8 @@
             <!-- File Upload -->
             <div class="form-group">
               <label>Upload Your Artwork <span class="req" aria-hidden="true">*</span></label>
-              <div class="upload-area" id="dtfUploadArea" role="button" aria-label="Upload design file">
-                <input type="file" id="dtfFileInput" name="Artwork File" accept=".png,.jpg,.jpeg,.svg,.pdf" aria-label="Select design file" required />
-                <span class="upload-icon" aria-hidden="true">🎨</span>
-                <h4>Drop your file here or click to browse</h4>
-                <p>PNG, JPG, SVG, or PDF — Max 50MB</p>
-                <span class="upload-formats">300 DPI · Transparent Background · RGB Color</span>
-              </div>
-              <div class="upload-preview" id="dtfUploadPreview">
-                <img src="" alt="Preview" />
-                <div class="upload-preview-info">
-                  <strong></strong>
-                  <span></span>
-                </div>
-                <button class="upload-remove" type="button" aria-label="Remove file">×</button>
-              </div>
-              <p class="form-hint">For gang sheets: upload all designs in a single ZIP or PDF. For single-size: upload one design file.</p>
+              <div class="ymp-upload" id="dtfUppy" data-max-files="10" data-required="true" data-note="PNG, JPG, SVG, PDF, or ZIP — 300 DPI · Transparent Background · RGB · Max 50MB per file"></div>
+              <p class="form-hint">For gang sheets: upload all designs as separate files or one ZIP. For single-size: upload one design file.</p>
             </div>
 
             <div class="form-group">
@@ -515,7 +502,6 @@
   <script src="js/main.js"></script>
   <script src="js/homepage.js"></script>
   <script src="js/pricing.js"></script>
-  <script src="js/upload.js"></script>
   <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
@@ -593,9 +579,6 @@
       window.addEventListener('resize', resize);
     })();
 
-    /* ---- Uploads ---- */
-    initUpload('dtfUploadArea', 'dtfUploadPreview', 'dtfFileInput');
-
     /* ---- Form submit ---- */
     document.getElementById('dtfQuoteForm').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -617,18 +600,24 @@
         const fd = new FormData(this);
         const fields = {};
         for (const [k, v] of fd.entries()) {
-          if (k === '_subject' || k === '_gotcha' || k === 'Artwork File') continue;
+          if (k === '_subject' || k === '_gotcha') continue;
           if (v) fields[k] = v;
         }
 
-        const fileInput = document.getElementById('dtfFileInput');
-        const file = fileInput && fileInput.files && fileInput.files[0];
+        const pickedFiles = window.YMP.getUppyFiles('dtfUppy') || [];
+        if (pickedFiles.length === 0) {
+          showToast('Please upload at least one artwork file.', 'error');
+          throw new Error('No artwork');
+        }
+        const files = pickedFiles.map(function (file) {
+          return { file, label: 'Artwork — ' + file.name };
+        });
 
         await window.YMP.submitInquiry({
           formType: 'DTF Transfer Quote',
           subject: fd.get('_subject') || 'New DTF Transfer Quote — YMPRESSME',
           fields,
-          files: file ? [{ file, label: 'Artwork — ' + file.name }] : [],
+          files,
           replyTo: fd.get('Email') || null,
           honeypot: fd.get('_gotcha') || '',
         });
@@ -636,7 +625,7 @@
         document.getElementById('dtfFormSuccess').classList.remove('hidden');
         document.getElementById('dtfFormError').classList.add('hidden');
         this.reset();
-        document.getElementById('dtfUploadPreview').classList.remove('show');
+        window.YMP.clearUppyFiles('dtfUppy');
         showToast('Quote submitted! We\'ll be in touch soon.', 'success');
       } catch (err) {
         console.error(err);
