@@ -73,9 +73,13 @@ window.YMP.submitInquiry = async function ({ formType, subject, fields, files, r
   if (uploaded.length === 0) {
     payload.append('Attached Files', 'None');
   } else {
+    // Each artwork gets two fields so the URL sits alone on its line —
+    // that lets Yahoo / Outlook / Gmail auto-linkify it as a clickable link.
     uploaded.forEach((f, i) => {
+      const num = i + 1;
       const sizeStr = f.size ? ' (' + formatSize(f.size) + ')' : '';
-      payload.append('File ' + (i + 1) + ' — ' + f.label, f.url + sizeStr);
+      payload.append('Artwork ' + num + ' Filename', f.label + sizeStr);
+      payload.append('Artwork ' + num + ' Link', f.url);
     });
   }
 
