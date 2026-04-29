@@ -22,7 +22,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 const SUPABASE_URL = 'https://dgsdftbkpxpfhttgwhze.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnc2RmdGJrcHhwZmh0dGd3aHplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NjMxODksImV4cCI6MjA5MjUzOTE4OX0.Xa4_CzSG1LUd4LJKhS4EoHqJ7uYFH9djwevPP87CCvI';
 const SUPABASE_BUCKET = 'ympressme-uploads';
-const WEB3FORMS_ACCESS_KEY = '75800229-122a-4a3f-858e-97cea5809fe5';
+const WEB3FORMS_ACCESS_KEY = 'fb862ae8-5d18-4daf-a634-e6dc5bc6bcf6';
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
