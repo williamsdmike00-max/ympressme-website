@@ -81,6 +81,20 @@ function mountUppy(mountEl) {
 
   window.YMP._uppyRegistry.set(mountId, uppy);
   if (required) mountEl.dataset.required = 'true';
+
+  // Defensive: any button Uppy renders inside a <form> defaults to
+  // type="submit" if missing the type attribute, which triggers form
+  // submission on click (instead of opening the file picker, etc.).
+  // Force type="button" on every button Uppy renders, including ones
+  // re-rendered later as files are added/removed.
+  function fixButtonTypes() {
+    mountEl.querySelectorAll('button:not([type])').forEach(function (btn) {
+      btn.setAttribute('type', 'button');
+    });
+  }
+  fixButtonTypes();
+  const observer = new MutationObserver(fixButtonTypes);
+  observer.observe(mountEl, { childList: true, subtree: true });
 }
 
 /** Retrieve the picked files (as native File objects) from an Uppy mount. */
