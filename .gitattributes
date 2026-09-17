@@ -1,0 +1,10 @@
+# Normalize line endings. OneDrive on Windows was rewriting every file to CRLF,
+# which made git report the entire repo as modified on every sync.
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
