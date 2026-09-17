@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart | YMPRESSME</title>
+  <meta name="description" content="Review your YMPRESSME order." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
+        <img src="assets/logo.png" alt="YMPRESSME Logo" />
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html" class="active">Shop</a></li>
+        <li><a href="tshirts.html">T-Shirts</a></li>
+        <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+        <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li class="nav-cta nav-cta-upload"><a href="contact.html#contactUploadArea">&uarr; Upload Design</a></li>
+        <li class="nav-cta nav-cart"><a href="cart.html">Cart <span data-cart-count hidden class="cart-badge">0</span></a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="navMobile">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="tshirts.html">Custom T-Shirts</a></li>
+      <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+      <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li class="mob-cta"><a href="cart.html">Cart</a></li>
+      <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <div class="page-hero">
+      <div class="container"><h1>Your Cart</h1></div>
+    </div>
+
+    <section class="section">
+      <div class="container" style="max-width:820px">
+        <div id="cartBody" aria-live="polite">
+          <p class="store-empty">Loading&hellip;</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logo.png" alt="YMPRESSME" />
+          <p>"Because you look so good when we do!"</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop.html">All Products</a></li>
+            <li><a href="tshirts.html">Custom T-Shirts</a></li>
+            <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="footer-contact-item"><span class="fci-icon">&#128231;</span><a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a></div>
+          <div class="footer-contact-item"><span class="fci-icon">&#128241;</span><a href="tel:+14099375272">(409) 937-5272</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+
+  <script type="module">
+    import { getVariants, money, esc } from './js/store.js';
+    import { getCart, setQuantity, checkout } from './js/cart.js';
+
+    const body = document.getElementById('cartBody');
+
+    async function paint() {
+      const cart = getCart();
+
+      if (!cart.length) {
+        body.innerHTML = `<div class="store-empty">
+            <p>Your cart is empty.</p>
+            <a href="shop.html" class="btn btn-primary">Browse the shop</a>
+          </div>`;
+        return;
+      }
+
+      let rows;
+      try {
+        rows = await getVariants(cart.map(i => i.variant_id));
+      } catch {
+        body.innerHTML = '<p class="store-empty">Could not load your cart. Please refresh.</p>';
+        return;
+      }
+
+      const byId = new Map(rows.map(r => [r.id, r]));
+      let subtotal = 0;
+      let artwork  = false;
+      const html = [];
+
+      for (const item of cart) {
+        const v = byId.get(item.variant_id);
+        if (!v) continue;                              // vanished from catalog
+        const p    = v.products || {};
+        const img  = (p.product_images || []).sort((a,b)=>a.position-b.position)[0]?.src;
+        const opts = [v.option1, v.option2, v.option3].filter(Boolean).join(' / ');
+        subtotal  += v.price_cents * item.quantity;
+
+        html.push(`<div class="cart-row">
+          ${img ? `<img src="${esc(img)}" alt="" />` : '<div class="cr-img"></div>'}
+          <div>
+            <div class="cr-title">${esc(p.title || 'Item')}</div>
+            ${opts ? `<div class="cr-opts">${esc(opts)}</div>` : ''}
+            <div class="mt-2">
+              <label class="cr-opts">Qty
+                <input type="number" min="0" max="500" value="${item.quantity}"
+                       data-qty="${esc(v.id)}" style="width:62px" />
+              </label>
+              <button class="cart-link" data-remove="${esc(v.id)}">Remove</button>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <strong>${money(v.price_cents * item.quantity)}</strong>
+            <div class="cr-opts">${money(v.price_cents)} ea</div>
+          </div>
+        </div>`);
+      }
+
+      body.innerHTML = html.join('') + `
+        <div class="cart-summary">
+          <div class="cs-line"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+          <div class="cs-line"><span>Shipping</span><span>Calculated at checkout</span></div>
+          <div class="cs-total"><span>Total</span><span>${money(subtotal)}+</span></div>
+          <button class="btn btn-primary btn-lg btn-full mt-3" id="checkoutBtn">Checkout</button>
+          <p class="form-hint mt-2" style="text-align:center">
+            Secure payment by Stripe. Final total including shipping shown before you pay.
+          </p>
+          <p id="cartMsg" class="form-error" role="status" aria-live="polite"></p>
+        </div>`;
+
+      body.querySelectorAll('[data-qty]').forEach(inp => {
+        inp.addEventListener('change', () => { setQuantity(inp.dataset.qty, inp.value); paint(); });
+      });
+      body.querySelectorAll('[data-remove]').forEach(b => {
+        b.addEventListener('click', () => { setQuantity(b.dataset.remove, 0); paint(); });
+      });
+
+      document.getElementById('checkoutBtn').onclick = async (e) => {
+        const btn = e.currentTarget;
+        btn.disabled = true; btn.textContent = 'Starting checkout\u2026';
+        const res = await checkout();
+        if (!res.ok) {
+          document.getElementById('cartMsg').textContent = res.error;
+          btn.disabled = false; btn.textContent = 'Checkout';
+        }
+      };
+    }
+
+    paint();
+  </script>
+</body>
+</html>

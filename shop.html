@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop | YMPRESSME</title>
+  <meta name="description" content="Shop YMPRESSME custom tees, hats, patches and DTF transfers. Printed to order in Texas." />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
+        <img src="assets/logo.png" alt="YMPRESSME Logo" />
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html" class="active">Shop</a></li>
+        <li><a href="tshirts.html">T-Shirts</a></li>
+        <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+        <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li class="nav-cta nav-cta-upload"><a href="contact.html#contactUploadArea">&uarr; Upload Design</a></li>
+        <li class="nav-cta nav-cart"><a href="cart.html">Cart <span data-cart-count hidden class="cart-badge">0</span></a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="navMobile">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="tshirts.html">Custom T-Shirts</a></li>
+      <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+      <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li class="mob-cta"><a href="cart.html">Cart</a></li>
+      <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <div class="page-hero">
+      <div class="container">
+        <h1>Shop</h1>
+        <p>Ready-to-order tees, hats, patches and DTF transfers &mdash; printed to order, shipped from Texas.</p>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="container">
+        <div id="shopGrid" class="shop-grid" aria-live="polite">
+          <p class="store-empty">Loading products&hellip;</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logo.png" alt="YMPRESSME" />
+          <p>"Because you look so good when we do!"</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop.html">All Products</a></li>
+            <li><a href="tshirts.html">Custom T-Shirts</a></li>
+            <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="footer-contact-item"><span class="fci-icon">&#128231;</span><a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a></div>
+          <div class="footer-contact-item"><span class="fci-icon">&#128241;</span><a href="tel:+14099375272">(409) 937-5272</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+
+  <script type="module">
+    import { listProducts, money, esc } from './js/store.js';
+    import './js/cart.js';
+
+    const grid = document.getElementById('shopGrid');
+
+    function priceLabel(p) {
+      if (p.minPrice == null) return '';
+      return p.minPrice === p.maxPrice
+        ? money(p.minPrice)
+        : `From ${money(p.minPrice)}`;
+    }
+
+    try {
+      const products = await listProducts();
+      if (!products.length) {
+        grid.innerHTML = '<p class="store-empty">No products yet &mdash; check back soon.</p>';
+      } else {
+        grid.innerHTML = products.map(p => `
+          <a class="pcard" href="product.html?p=${encodeURIComponent(p.handle)}">
+            <div class="pcard-img">
+              ${p.hero
+                ? `<img src="${esc(p.hero)}" alt="${esc(p.title)}" loading="lazy" />`
+                : '<span class="ph">Photo coming soon</span>'}
+            </div>
+            <div class="pcard-body">
+              <h3 class="pcard-title">${esc(p.title)}</h3>
+              ${p.needs_artwork ? '<span class="pcard-tag">You upload the artwork</span>' : ''}
+              <span class="pcard-price">${priceLabel(p)}</span>
+            </div>
+          </a>`).join('');
+      }
+    } catch (err) {
+      console.error(err);
+      grid.innerHTML = '<p class="store-empty">Could not load products. Please refresh.</p>';
+    }
+  </script>
+</body>
+</html>

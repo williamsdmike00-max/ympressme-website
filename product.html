@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product | YMPRESSME</title>
+  <meta name="description" content="Order custom printed apparel and DTF transfers from YMPRESSME." />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
+        <img src="assets/logo.png" alt="YMPRESSME Logo" />
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html" class="active">Shop</a></li>
+        <li><a href="tshirts.html">T-Shirts</a></li>
+        <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+        <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li class="nav-cta nav-cta-upload"><a href="contact.html#contactUploadArea">&uarr; Upload Design</a></li>
+        <li class="nav-cta nav-cart"><a href="cart.html">Cart <span data-cart-count hidden class="cart-badge">0</span></a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="navMobile">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="tshirts.html">Custom T-Shirts</a></li>
+      <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+      <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li class="mob-cta"><a href="cart.html">Cart</a></li>
+      <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <p class="mb-2"><a href="shop.html">&larr; Back to shop</a></p>
+        <div id="pdp" class="pdp">
+          <p class="store-empty">Loading&hellip;</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logo.png" alt="YMPRESSME" />
+          <p>"Because you look so good when we do!"</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop.html">All Products</a></li>
+            <li><a href="tshirts.html">Custom T-Shirts</a></li>
+            <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="footer-contact-item"><span class="fci-icon">&#128231;</span><a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a></div>
+          <div class="footer-contact-item"><span class="fci-icon">&#128241;</span><a href="tel:+14099375272">(409) 937-5272</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+
+  <script type="module">
+    import { getProduct, optionValues, findVariant, money, esc } from './js/store.js';
+    import { addItem } from './js/cart.js';
+
+    const root   = document.getElementById('pdp');
+    const handle = new URLSearchParams(location.search).get('p');
+
+    if (!handle) { location.replace('shop.html'); }
+
+    const product = await getProduct(handle).catch(() => null);
+
+    if (!product) {
+      root.innerHTML = '<p class="store-empty">Product not found. <a href="shop.html">Back to shop</a></p>';
+    } else {
+      document.title = product.title + ' | YMPRESSME';
+
+      const slots  = [1, 2, 3].filter(n => product[`option${n}_name`]);
+      const picked = slots.map(n => {
+        const vals = optionValues(product, n);
+        return vals.length === 1 ? vals[0] : null;   // auto-pick single-value options
+      });
+
+      root.innerHTML = `
+        <div>
+          <div class="pdp-main" id="pdpMain">
+            ${product.hero
+              ? `<img id="pdpImg" src="${esc(product.hero)}" alt="${esc(product.title)}" />`
+              : '<span class="ph">Photo coming soon</span>'}
+          </div>
+          ${product.images.length > 1 ? `<div class="pdp-thumbs" id="pdpThumbs">
+            ${product.images.map((im, i) => `
+              <button data-src="${esc(im.src)}" class="${i === 0 ? 'active' : ''}" aria-label="View image ${i + 1}">
+                <img src="${esc(im.src)}" alt="" loading="lazy" />
+              </button>`).join('')}
+          </div>` : ''}
+        </div>
+
+        <div>
+          <h1 style="margin-top:0">${esc(product.title)}</h1>
+          <div class="pdp-price" id="pdpPrice"></div>
+          ${product.needs_artwork ? `<div class="artwork-note">
+            <strong>You'll send us your artwork.</strong> Place your order first &mdash;
+            we'll email you right after with where to upload your files.
+          </div>` : ''}
+          <div id="pdpOptions"></div>
+
+          <div class="qty-row">
+            <div class="qty-box">
+              <button type="button" id="qtyMinus" aria-label="Decrease quantity">&minus;</button>
+              <input id="qtyInput" type="number" value="1" min="1" max="500" aria-label="Quantity" />
+              <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
+            </div>
+            <button class="btn btn-primary btn-lg" id="addBtn" style="flex:1">Add to Cart</button>
+          </div>
+
+          <p id="pdpMsg" class="form-hint" role="status" aria-live="polite"></p>
+          ${product.description ? `<div class="mt-4"><h3>Details</h3><p>${esc(product.description)}</p></div>` : ''}
+        </div>`;
+
+      // ---- image thumbs ----
+      const thumbs = document.getElementById('pdpThumbs');
+      if (thumbs) thumbs.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        document.getElementById('pdpImg').src = b.dataset.src;
+        thumbs.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+      });
+
+      // ---- option chips ----
+      const optWrap = document.getElementById('pdpOptions');
+
+      function render() {
+        optWrap.innerHTML = slots.map((n, idx) => {
+          const vals = optionValues(product, n);
+          return `<div class="opt-group">
+            <h4>${esc(product[`option${n}_name`])}</h4>
+            <div class="opt-chips" data-slot="${idx}">
+              ${vals.map(v => {
+                // is this value reachable given the other picks?
+                const trial = [...picked]; trial[idx] = v;
+                const reachable = product.variants.some(va =>
+                  trial.every((t, i) => t == null || (va[`option${slots[i]}`] ?? null) === t));
+                return `<button type="button" class="opt-chip ${picked[idx] === v ? 'active' : ''}"
+                          data-val="${esc(v)}" ${reachable ? '' : 'disabled'}>${esc(v)}</button>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('');
+        paintPrice();
+      }
+
+      function current() {
+        const full = [null, null, null];
+        slots.forEach((n, i) => { full[n - 1] = picked[i]; });
+        return picked.every(p => p !== null) ? findVariant(product, full) : null;
+      }
+
+      function paintPrice() {
+        const v = current();
+        const el = document.getElementById('pdpPrice');
+        if (v) el.textContent = money(v.price_cents);
+        else if (product.minPrice === product.maxPrice) el.textContent = money(product.minPrice);
+        else el.textContent = `${money(product.minPrice)} \u2013 ${money(product.maxPrice)}`;
+      }
+
+      optWrap.addEventListener('click', e => {
+        const chip = e.target.closest('.opt-chip');
+        if (!chip || chip.disabled) return;
+        const slot = Number(chip.closest('.opt-chips').dataset.slot);
+        picked[slot] = picked[slot] === chip.dataset.val ? null : chip.dataset.val;
+        render();
+        document.getElementById('pdpMsg').textContent = '';
+      });
+
+      render();
+
+      // ---- quantity ----
+      const qty = document.getElementById('qtyInput');
+      const clamp = () => { qty.value = Math.max(1, Math.min(500, parseInt(qty.value, 10) || 1)); };
+      document.getElementById('qtyMinus').onclick = () => { qty.value = Math.max(1, (+qty.value || 1) - 1); };
+      document.getElementById('qtyPlus').onclick  = () => { qty.value = Math.min(500, (+qty.value || 1) + 1); };
+      qty.addEventListener('change', clamp);
+
+      // ---- add to cart ----
+      document.getElementById('addBtn').onclick = () => {
+        const v   = current();
+        const msg = document.getElementById('pdpMsg');
+        if (!v) {
+          const missing = slots.filter((n, i) => picked[i] === null)
+                               .map(n => product[`option${n}_name`]);
+          msg.textContent = `Please choose a ${missing.join(' and ')}.`;
+          return;
+        }
+        clamp();
+        addItem(v.id, parseInt(qty.value, 10), {
+          title: product.title,
+          label: [v.option1, v.option2, v.option3].filter(Boolean).join(' / '),
+          image: product.hero
+        });
+        msg.innerHTML = `Added to cart. <a href="cart.html">View cart &rarr;</a>`;
+      };
+    }
+  </script>
+</body>
+</html>
