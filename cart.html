@@ -20,23 +20,27 @@
       <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
         <img src="assets/logo.png" alt="YMPRESSME Logo" />
       </a>
+
       <ul class="nav-links" role="list">
         <li><a href="index.html">Home</a></li>
-        <li><a href="shop.html" class="active">Shop</a></li>
+        <li><a href="shop.html">Shop</a></li>
         <li><a href="tshirts.html">T-Shirts</a></li>
         <li><a href="dtf-transfers.html">DTF Transfers</a></li>
         <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        <li><a href="about.html">About</a></li>
         <li><a href="faq.html">FAQ</a></li>
-        <li class="nav-cta nav-cta-upload"><a href="contact.html#contactUploadArea">&uarr; Upload Design</a></li>
-        <li class="nav-cta nav-cart"><a href="cart.html">Cart <span data-cart-count hidden class="cart-badge">0</span></a></li>
+        <li class="nav-cta nav-cta-upload"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
+        <li class="nav-cta"><a href="contact.html">Get a Quote</a></li>
+        <li class="nav-cta nav-cart"><a href="cart.html" class="active">Cart <span data-cart-count hidden class="cart-badge">0</span></a></li>
       </ul>
+
       <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
-  <div class="nav-mobile" id="navMobile">
-    <ul>
+  <div class="nav-mobile" id="navMobile" aria-hidden="true">
+    <ul role="list">
       <li><a href="index.html">Home</a></li>
       <li><a href="shop.html">Shop</a></li>
       <li><a href="tshirts.html">Custom T-Shirts</a></li>
@@ -44,8 +48,9 @@
       <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="faq.html">FAQ</a></li>
-      <li class="mob-cta"><a href="cart.html">Cart</a></li>
+      <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
       <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li class="mob-cta"><a href="cart.html">Cart</a></li>
     </ul>
   </div>
 
