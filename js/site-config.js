@@ -23,9 +23,9 @@
  */
 
 export const SITE_CONFIG = {
-  // Supabase project shared across Mike's agency clients
-  supabaseUrl: 'https://dgsdftbkpxpfhttgwhze.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnc2RmdGJrcHhwZmh0dGd3aHplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NjMxODksImV4cCI6MjA5MjUzOTE4OX0.Xa4_CzSG1LUd4LJKhS4EoHqJ7uYFH9djwevPP87CCvI',
+  // Ympressme's own Supabase project (same one the storefront uses)
+  supabaseUrl: 'https://qgiozygfzsqtjhfhvoon.supabase.co',
+  supabaseAnonKey: 'sb_publishable_jDOcTqSI7Oqfio9xmUiQFg_qfr5FU9L',
 
   // Per-client values — change these when cloning for a new site
   supabaseBucket: 'ympressme-uploads',

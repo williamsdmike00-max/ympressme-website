@@ -3,7 +3,7 @@
  * Interactive canvas-based gang sheet builder.
  *
  * How it works:
- *  - User selects sheet size (13x19, 22x24, 22x36)
+ *  - User selects sheet size (18" wide, 24"–500" long)
  *  - User selects a transfer size to place (4x4, 8x8, 11x15, etc.)
  *  - Click on the canvas to place a design at that position
  *  - Designs can be dragged to reposition
@@ -32,17 +32,20 @@
   };
 
   /* ---- Sheet definitions (inches) ----
-     22"-wide standard DTF sheets, matching gangify.app's sizing.
-     Prices here are starting suggestions — adjust to YMPRESSME's actual rates.
+     18"-wide DTF sheets — YMPRESSME rate card (Oct 2026).
   ---- */
   const SHEETS = {
-    '22x12':  { w: 22, h: 12,  label: '22" × 12"',  price: 14.00 },
-    '22x24':  { w: 22, h: 24,  label: '22" × 24"',  price: 20.00 },
-    '22x36':  { w: 22, h: 36,  label: '22" × 36"',  price: 28.00 },
-    '22x48':  { w: 22, h: 48,  label: '22" × 48"',  price: 36.00 },
-    '22x60':  { w: 22, h: 60,  label: '22" × 60"',  price: 44.00 },
-    '22x96':  { w: 22, h: 96,  label: '22" × 96"',  price: 64.00 },
-    '22x120': { w: 22, h: 120, label: '22" × 120"', price: 78.00 },
+    '18x24': { w: 18, h: 24, label: '18" × 24"', price: 5.99 },
+    '18x60': { w: 18, h: 60, label: '18" × 60"', price: 16.99 },
+    '18x80': { w: 18, h: 80, label: '18" × 80"', price: 24.99 },
+    '18x120': { w: 18, h: 120, label: '18" × 120"', price: 32.99 },
+    '18x140': { w: 18, h: 140, label: '18" × 140"', price: 40.99 },
+    '18x180': { w: 18, h: 180, label: '18" × 180"', price: 49.99 },
+    '18x200': { w: 18, h: 200, label: '18" × 200"', price: 57.99 },
+    '18x240': { w: 18, h: 240, label: '18" × 240"', price: 69.99 },
+    '18x280': { w: 18, h: 280, label: '18" × 280"', price: 82.99 },
+    '18x360': { w: 18, h: 360, label: '18" × 360"', price: 103.99 },
+    '18x500': { w: 18, h: 500, label: '18" × 500"', price: 132.99 },
   };
 
   /* Default starting width when a design is auto-placed on the canvas (inches). */
@@ -51,7 +54,7 @@
   const SAFETY_MARGIN_IN = 0.25;
 
   /* ---- State ---- */
-  let currentSheet   = '22x24'; // gangify-style default
+  let currentSheet   = '18x24'; // gangify-style default
   let showMargins    = false;   // 0.25" safety margin overlay toggle
   let bgColor        = null;    // null = transparent; otherwise CSS color string
   let designs        = [];  // { id, key, x, y, w, h, label, uploadId }

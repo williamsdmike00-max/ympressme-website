@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gang Sheet Builder | YMPRESSME</title>
-  <meta name="description" content="Upload your designs, arrange them on a 22-inch DTF gang sheet, and order in minutes. Drag, resize, rotate — exactly the way you want." />
+  <meta name="description" content="Upload your designs, arrange them on an 18-inch-wide DTF gang sheet, and order in minutes. Drag, resize, rotate — exactly the way you want." />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/cinematic.css" />
@@ -195,6 +195,8 @@
     }
     .canvas-scroll-wrap {
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: 80vh;
       -webkit-overflow-scrolling: touch;
       display: flex;
       justify-content: center;
@@ -704,7 +706,7 @@
                     </span>
                   </div>
                 </div>
-                <div class="canvas-meta" id="canvasMeta">22" × 24" sheet</div>
+                <div class="canvas-meta" id="canvasMeta">18" × 24" sheet</div>
               </div>
             </div>
 
@@ -725,13 +727,17 @@
           <aside class="gs-panel" aria-label="Sheet settings">
             <h3>📐 Sheet Size</h3>
             <div class="gs-sheet-grid" id="gsSheetGrid" role="group" aria-label="Select sheet size">
-              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x12">22" × 12"</button>
-              <button type="button" class="gs-sheet-btn sheet-btn active" data-sheet="22x24">22" × 24"</button>
-              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x36">22" × 36"</button>
-              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x48">22" × 48"</button>
-              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x60">22" × 60"</button>
-              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x96">22" × 96"</button>
-              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x120" style="grid-column:span 2;">22" × 120"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn active" data-sheet="18x24">18" × 24" · $5.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x60">18" × 60" · $16.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x80">18" × 80" · $24.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x120">18" × 120" · $32.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x140">18" × 140" · $40.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x180">18" × 180" · $49.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x200">18" × 200" · $57.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x240">18" × 240" · $69.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x280">18" × 280" · $82.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x360">18" × 360" · $103.99</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="18x500" style="grid-column:span 2;">18" × 500" · $132.99</button>
             </div>
 
             <hr>
@@ -765,7 +771,7 @@
             <div class="gs-mini-summary">
               <div class="bs-row">
                 <span>Sheet price</span>
-                <strong id="bsSummarySheetPrice">$20.00/sheet</strong>
+                <strong id="bsSummarySheetPrice">$5.99/sheet</strong>
               </div>
               <div class="bs-row">
                 <span>Designs placed</span>
@@ -777,7 +783,7 @@
               </div>
               <div class="bs-row bs-total">
                 <span>Total</span>
-                <strong id="bsSummaryTotal">$20.00</strong>
+                <strong id="bsSummaryTotal">$5.99</strong>
               </div>
             </div>
 
@@ -872,13 +878,17 @@
                 <label for="gsSheetSizeForm">Sheet Size <span class="req" aria-hidden="true">*</span></label>
                 <select id="gsSheetSizeForm" name="Sheet Size (Confirmed)" class="form-control" required>
                   <option value="">Select…</option>
-                  <option value='22" × 12"'>22" × 12"</option>
-                  <option value='22" × 24"' selected>22" × 24"</option>
-                  <option value='22" × 36"'>22" × 36"</option>
-                  <option value='22" × 48"'>22" × 48"</option>
-                  <option value='22" × 60"'>22" × 60"</option>
-                  <option value='22" × 96"'>22" × 96"</option>
-                  <option value='22" × 120"'>22" × 120"</option>
+                  <option value='18" × 24"' selected>18" × 24" — $5.99</option>
+                  <option value='18" × 60"'>18" × 60" — $16.99</option>
+                  <option value='18" × 80"'>18" × 80" — $24.99</option>
+                  <option value='18" × 120"'>18" × 120" — $32.99</option>
+                  <option value='18" × 140"'>18" × 140" — $40.99</option>
+                  <option value='18" × 180"'>18" × 180" — $49.99</option>
+                  <option value='18" × 200"'>18" × 200" — $57.99</option>
+                  <option value='18" × 240"'>18" × 240" — $69.99</option>
+                  <option value='18" × 280"'>18" × 280" — $82.99</option>
+                  <option value='18" × 360"'>18" × 360" — $103.99</option>
+                  <option value='18" × 500"'>18" × 500" — $132.99</option>
                 </select>
                 <span class="form-error">Required.</span>
               </div>
@@ -960,7 +970,7 @@
 
   <script src="js/main.js"></script>
   <script src="js/homepage.js"></script>
-  <script src="js/pricing.js"></script>
+  <script src="js/pricing.js?v=2"></script>
   <!-- ====== ADD TEXT MODAL ====== -->
   <div class="gs-modal-backdrop" id="gsTextModal" role="dialog" aria-modal="true" aria-labelledby="gsTextModalTitle">
     <div class="gs-modal">
@@ -1002,7 +1012,7 @@
     </div>
   </div>
 
-  <script src="js/gang-sheet-builder.js?v=13"></script>
+  <script src="js/gang-sheet-builder.js?v=14"></script>
   <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
@@ -1025,7 +1035,7 @@
       const formSel = document.getElementById('gsSheetSizeForm');
       sheetButtons.forEach(function (b) {
         b.addEventListener('click', function () {
-          const sheet = b.dataset.sheet; // e.g. "22x24"
+          const sheet = b.dataset.sheet; // e.g. "18x24"
           const [w, h] = sheet.split('x');
           const label = w + '" × ' + h + '"';
           if (formSel) {

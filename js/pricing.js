@@ -66,9 +66,17 @@ function calcDtfPrice(sizeKey, qty) {
    ================================================================ */
 
 const GANG_SHEETS = {
-  '13x19': { label: '13" × 19"', price: 12.00, w: 13, h: 19 },
-  '22x24': { label: '22" × 24"', price: 20.00, w: 22, h: 24 },
-  '22x36': { label: '22" × 36"', price: 28.00, w: 22, h: 36 },
+  '18x24': { label: '18" × 24"', price: 5.99, w: 18, h: 24 },
+  '18x60': { label: '18" × 60"', price: 16.99, w: 18, h: 60 },
+  '18x80': { label: '18" × 80"', price: 24.99, w: 18, h: 80 },
+  '18x120': { label: '18" × 120"', price: 32.99, w: 18, h: 120 },
+  '18x140': { label: '18" × 140"', price: 40.99, w: 18, h: 140 },
+  '18x180': { label: '18" × 180"', price: 49.99, w: 18, h: 180 },
+  '18x200': { label: '18" × 200"', price: 57.99, w: 18, h: 200 },
+  '18x240': { label: '18" × 240"', price: 69.99, w: 18, h: 240 },
+  '18x280': { label: '18" × 280"', price: 82.99, w: 18, h: 280 },
+  '18x360': { label: '18" × 360"', price: 103.99, w: 18, h: 360 },
+  '18x500': { label: '18" × 500"', price: 132.99, w: 18, h: 500 },
 };
 
 function calcGangSheetPrice(sheetKey, qty) {
@@ -88,13 +96,16 @@ function calcGangSheetPrice(sheetKey, qty) {
    T-SHIRT PRODUCTION PRICING
    Flat price per shirt by quantity tier.
    Size upcharges: +$1 per X over XL (2XL=+$1, 3XL=+$2 … 7XL=+$6)
+   Back design: +$6.00 per shirt (Front + Back print location)
    ================================================================ */
 
+const BACK_DESIGN_PRICE = 6.00;
+
 const SHIRT_QTY_TIERS = [
-  { min: 1,   max: 25,       price: 18.00, label: '1–25 shirts' },
-  { min: 26,  max: 50,       price: 16.00, label: '26–50 shirts' },
-  { min: 51,  max: 100,      price: 14.00, label: '51–100 shirts' },
-  { min: 101, max: Infinity, price: 13.00, label: '100+ shirts' },
+  { min: 1,   max: 25,       price: 19.00, label: '1–25 shirts' },
+  { min: 26,  max: 50,       price: 18.00, label: '26–50 shirts' },
+  { min: 51,  max: 100,      price: 17.00, label: '51–100 shirts' },
+  { min: 101, max: Infinity, price: 15.00, label: '101+ shirts' },
 ];
 
 /**
@@ -124,11 +135,12 @@ function getShirtTier(qty) {
  * @param {number} numberCount     number of number personalizations
  * @returns {{ unitPrice, total, tier, personalizationCost }}
  */
-function calcShirtPrice(qty, sizeUpchargeKey, nameCount, numberCount) {
+function calcShirtPrice(qty, sizeUpchargeKey, nameCount, numberCount, backDesign) {
   if (qty < 1) return null;
   const tier         = getShirtTier(qty);
   const upcharge     = getShirtSizeUpcharge(sizeUpchargeKey || '');
-  const unitBase     = tier.price + upcharge;
+  const backCost     = backDesign ? BACK_DESIGN_PRICE : 0;
+  const unitBase     = tier.price + upcharge + backCost;
   const personNames  = (nameCount  || 0) * 3.00;
   const personNums   = (numberCount || 0) * 2.00;
   const personPerShirt = personNames + personNums;
@@ -139,6 +151,7 @@ function calcShirtPrice(qty, sizeUpchargeKey, nameCount, numberCount) {
     total,
     tier,
     upcharge,
+    backCost,
     personalizationCost: +(personPerShirt * qty).toFixed(2),
     baseTotal: +(unitBase * qty).toFixed(2),
   };
@@ -229,7 +242,9 @@ window.initShirtCalculator = function () {
     const szKey  = sizeUpcharge ? sizeUpcharge.value : '';
     const names  = nameCount   ? parseInt(nameCount.value)   || 0 : 0;
     const nums   = numberCount ? parseInt(numberCount.value) || 0 : 0;
-    const result = calcShirtPrice(qty, szKey, names, nums);
+    const locChip = document.querySelector('[aria-labelledby="printLabel"] .chip.active');
+    const back   = !!(locChip && locChip.dataset.loc === 'front-back');
+    const result = calcShirtPrice(qty, szKey, names, nums, back);
     if (!result) return;
 
     const unitEl    = document.getElementById('shirtUnitPrice');
@@ -241,12 +256,13 @@ window.initShirtCalculator = function () {
     const bdPerson  = document.getElementById('sbd-person');
     const bdTot     = document.getElementById('sbd-total');
     const bdUpch    = document.getElementById('sbd-upcharge');
+    const bdBack    = document.getElementById('sbd-back');
 
     if (unitEl)    unitEl.textContent    = fmt(result.unitPrice);
     if (totalEl)   totalEl.textContent   = fmt(result.total);
     if (tierEl)    tierEl.textContent    = result.tier.label + ' · ' + fmt(result.tier.price) + '/shirt';
     if (savingsEl) {
-      const saved = (18.00 - result.tier.price) * qty;
+      const saved = (SHIRT_QTY_TIERS[0].price - result.tier.price) * qty;
       savingsEl.textContent = saved > 0
         ? 'You save ' + fmt(saved) + ' vs. single-piece price'
         : 'Best price starts at 26+ shirts';
@@ -254,6 +270,7 @@ window.initShirtCalculator = function () {
     if (bdQty)    bdQty.textContent    = qty + ' shirt' + (qty > 1 ? 's' : '');
     if (bdUnit)   bdUnit.textContent   = fmt(result.tier.price) + '/shirt (base)';
     if (bdUpch)   bdUpch.textContent   = result.upcharge > 0 ? '+' + fmt(result.upcharge) + '/shirt (oversize)' : 'Standard size';
+    if (bdBack)   bdBack.textContent   = result.backCost > 0 ? '+' + fmt(result.backCost) + '/shirt' : 'Front only';
     if (bdPerson) bdPerson.textContent = result.personalizationCost > 0 ? '+' + fmt(result.personalizationCost) + ' (personalization)' : 'None';
     if (bdTot)    bdTot.textContent    = fmt(result.total);
   }
