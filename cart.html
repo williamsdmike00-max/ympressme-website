@@ -154,7 +154,7 @@
           <div>
             <div class="cr-title">${esc(p.title || 'Item')}</div>
             ${opts ? `<div class="cr-opts">${esc(opts)}</div>` : ''}
-            ${art ? `<div class="cr-opts">Your design: <a href="${esc(art.url)}" target="_blank" rel="noopener">${esc(art.name || 'artwork')}</a></div>` : ''}
+            ${art ? `<div class="cr-opts" style="text-transform:none">Your design: <a href="${esc(art.url)}" target="_blank" rel="noopener">${esc(art.name || 'artwork')}</a></div>` : ''}
             <div class="mt-2">
               <label class="cr-opts">Qty
                 <input type="number" min="0" max="500" value="${item.quantity}"
