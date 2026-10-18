@@ -342,6 +342,25 @@
     resizeHandle = null;
   }
 
+  /* ---- Find the first open spot (row-major, top-left first) that fits a
+     w×h box with `gap` inches of clearance from every other design.
+     Returns {x, y} or null when the sheet has no room left. ---- */
+  function findFreeSpot(w, h, gap) {
+    const sheet = SHEETS[currentSheet];
+    const STEP = 0.25;
+    gap = gap || 0;
+    for (let yy = 0; yy + h <= sheet.h + 1e-6; yy += STEP) {
+      for (let xx = 0; xx + w <= sheet.w + 1e-6; xx += STEP) {
+        const overlaps = designs.some(function (d) {
+          return !(xx + w + gap <= d.x || xx >= d.x + d.w + gap ||
+                   yy + h + gap <= d.y || yy >= d.y + d.h + gap);
+        });
+        if (!overlaps) return { x: xx, y: yy };
+      }
+    }
+    return null;
+  }
+
   /* ---- Auto-place a design on the canvas when its upload finishes ----
      Gangify-style: as soon as an image upload completes, drop it onto the
      sheet at a sensible default size and find a non-overlapping spot.
@@ -361,19 +380,9 @@
       w = h * aspect;
     }
 
-    // Find an empty spot: try simple row-major positions every 0.5", first
-    // non-overlapping placement wins. If we can't find one, just stack at (0,0).
-    const STEP = 0.5;
-    let placedX = 0, placedY = 0, found = false;
-    for (let yy = 0; yy + h <= sheet.h && !found; yy += STEP) {
-      for (let xx = 0; xx + w <= sheet.w && !found; xx += STEP) {
-        const overlaps = designs.some(function (d) {
-          return !(xx + w <= d.x || xx >= d.x + d.w ||
-                   yy + h <= d.y || yy >= d.y + d.h);
-        });
-        if (!overlaps) { placedX = xx; placedY = yy; found = true; }
-      }
-    }
+    // Find an empty spot; if the sheet is full, just stack at (0,0).
+    const spot = findFreeSpot(w, h, 0);
+    const placedX = spot ? spot.x : 0, placedY = spot ? spot.y : 0;
 
     const design = {
       id:       nextId++,
@@ -444,7 +453,7 @@
   };
 
   /* ---- Apply custom dimensions to the selected design ---- */
-  window.applyCustomSize = function (newW, newH) {
+  window.applyCustomSize = function (newW, newH, keepProportions) {
     if (selectedId === null) return;
     const d = designs.find(function (d) { return d.id === selectedId; });
     if (!d) return;
@@ -452,9 +461,21 @@
     let w = parseFloat(newW), h = parseFloat(newH);
     if (!isFinite(w) || w < MIN_DIM_IN) w = d.w;
     if (!isFinite(h) || h < MIN_DIM_IN) h = d.h;
-    // Clamp to sheet
-    w = Math.min(w, sheet.w - d.x);
-    h = Math.min(h, sheet.h - d.y);
+    const aspect = (d.aspect && d.aspect > 0) ? d.aspect : (d.w / d.h);
+    if (keepProportions) {
+      // Width drives unless only height changed
+      if (Math.abs(w - d.w) < 1e-6 && Math.abs(h - d.h) > 1e-6) w = h * aspect;
+      else h = w / aspect;
+      // Shrink proportionally if it no longer fits the sheet
+      const fit = Math.min(1, sheet.w / w, sheet.h / h);
+      w *= fit; h *= fit;
+    } else {
+      w = Math.min(w, sheet.w);
+      h = Math.min(h, sheet.h);
+    }
+    // Keep it on the sheet
+    d.x = Math.max(0, Math.min(d.x, sheet.w - w));
+    d.y = Math.max(0, Math.min(d.y, sheet.h - h));
     d.w = w; d.h = h;
     d.aspect = d.w / d.h;
     d.label = d.w.toFixed(1) + '" × ' + d.h.toFixed(1) + '"';
@@ -954,7 +975,15 @@
     updateSidebar();
   };
 
-  /* ---- Duplicate the selected design `count` times (default 1) ---- */
+  /* ---- Duplicate the selected design `count` times (default 1) ----
+     Copies drop into the next open slots on the sheet (left-to-right,
+     top-to-bottom, 1/4" apart) instead of scattering, so customers don't
+     have to drag each one into place. */
+  const DUP_GAP = 0.25;
+  function makeCopy(src, x, y) {
+    return Object.assign({}, src, { id: nextId++, x: x, y: y });
+  }
+
   window.duplicateSelected = function (count) {
     if (selectedId === null) {
       window.showToast && window.showToast('Click a design on the canvas first.', 'info');
@@ -962,22 +991,48 @@
     }
     const src = designs.find(function (d) { return d.id === selectedId; });
     if (!src) return;
-    const sheet = SHEETS[currentSheet];
-    const n = Math.max(1, Math.min(20, parseInt(count, 10) || 1));
-    const OFFSET = 0.5; // shift each copy 0.5" right & down
+    const n = Math.max(1, Math.min(100, parseInt(count, 10) || 1));
 
+    let added = 0;
     for (let i = 0; i < n; i++) {
-      const copy = Object.assign({}, src, {
-        id:       nextId++,
-        x:        Math.min(src.x + OFFSET * (i + 1), sheet.w - src.w),
-        y:        Math.min(src.y + OFFSET * (i + 1), sheet.h - src.h),
-      });
-      // ensure not negative or off-sheet
-      copy.x = Math.max(0, copy.x);
-      copy.y = Math.max(0, copy.y);
-      designs.push(copy);
-      selectedId = copy.id;
+      const spot = findFreeSpot(src.w, src.h, DUP_GAP);
+      if (!spot) break;
+      designs.push(makeCopy(src, spot.x, spot.y));
+      added++;
     }
+    if (added < n) {
+      window.showToast && window.showToast(
+        added === 0
+          ? 'No room left on this sheet — pick a bigger sheet or shrink the design.'
+          : 'Added ' + added + ' of ' + n + ' copies — the sheet is full.',
+        'info'
+      );
+    }
+    render();
+    updateSidebar();
+    renderUploadTray();
+  };
+
+  /* ---- Fill the rest of the sheet with copies of the selected design ---- */
+  window.fillSheetWithSelected = function () {
+    if (selectedId === null) {
+      window.showToast && window.showToast('Click a design on the canvas first.', 'info');
+      return;
+    }
+    const src = designs.find(function (d) { return d.id === selectedId; });
+    if (!src) return;
+    const MAX_COPIES = 2000; // safety cap for huge sheets / tiny designs
+    let added = 0;
+    while (added < MAX_COPIES) {
+      const spot = findFreeSpot(src.w, src.h, DUP_GAP);
+      if (!spot) break;
+      designs.push(makeCopy(src, spot.x, spot.y));
+      added++;
+    }
+    window.showToast && window.showToast(
+      added === 0 ? 'The sheet is already full.' : 'Filled the sheet with ' + added + ' more cop' + (added === 1 ? 'y' : 'ies') + '.',
+      added === 0 ? 'info' : 'success'
+    );
     render();
     updateSidebar();
     renderUploadTray();
@@ -1334,7 +1389,7 @@
      resize indicator. Size pill is drawn separately by drawSizePill. ---- */
   function drawSelectionChrome(d, px, py, pw, ph, isSelected, overlapping) {
     // Always draw the size pill so customers can see space usage
-    drawSizePill(d, px, py, pw, ph, isSelected);
+    if (isSelected) drawSizePill(d, px, py, pw, ph, isSelected);
 
     if (!isSelected && !overlapping) return;
 
@@ -1678,7 +1733,13 @@
   /* ---- Export layout as PNG (for submission) ---- */
   window.exportSheetLayout = function () {
     if (!canvas) return null;
-    return canvas.toDataURL('image/png');
+    const prevSel = selectedId;
+    selectedId = null;          // hide selection chrome + size label
+    render();
+    const url = canvas.toDataURL('image/png');
+    selectedId = prevSel;
+    render();
+    return url;
   };
 
 })();

@@ -380,6 +380,11 @@
       text-align: right;
     }
 
+    /* Keep-proportions toggle */
+    .gs-lock-row { display:flex; align-items:flex-start; gap:0.4rem; margin:0.45rem 0 0.6rem; font-size:0.8rem; cursor:pointer; line-height:1.3; }
+    .gs-lock-row input { margin-top:0.15rem; }
+    .gs-lock-row small { color: var(--gray); }
+
     /* Duplicate row */
     .gs-dup-row { display: flex; gap: 0.4rem; align-items: stretch; }
     .gs-dup-row input {
@@ -596,8 +601,9 @@
                 <button type="button" class="gs-btn" id="gsRotateBtn" style="margin-top:0.5rem;">↻ Rotate 90°</button>
                 <div class="gs-dup-row" style="margin-top:0.5rem;">
                   <button type="button" class="gs-btn" id="gsDuplicateBtn" style="flex:1;">⎘ Duplicate ×</button>
-                  <input type="number" id="gsDupCount" min="1" max="20" value="1" />
+                  <input type="number" id="gsDupCount" min="1" max="100" value="1" />
                 </div>
+                <button type="button" class="gs-btn" id="gsFillSheetBtn" style="margin-top:0.5rem;">▦ Fill Sheet With This Design</button>
               </div>
 
               <!-- ===== IMAGE CONTROLS ===== -->
@@ -615,7 +621,10 @@
                       <input type="number" id="gsSelHeight" step="0.1" min="0.5" aria-label="Height (inches)" />
                     </div>
                   </div>
-                  <p class="gs-hint">Aspect ratio is preserved</p>
+                  <label class="gs-lock-row">
+                    <input type="checkbox" id="gsLockRatio" checked />
+                    <span>Keep proportions <small>(uncheck for a custom width &amp; height)</small></span>
+                  </label>
                   <button type="button" class="gs-btn" id="gsApplyCustomBtn" style="margin-bottom:0.75rem;">Apply Size</button>
 
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
@@ -821,7 +830,7 @@
         <div class="section-header">
           <span class="section-label">Order Now</span>
           <h2 id="gsQuoteHeading">Submit Your <span class="text-accent">Gang Sheet Order</span></h2>
-          <p>Fill in your contact details and we'll confirm with a layout proof within a few hours.</p>
+          <p>Fill in your contact details, approve your layout, and submit. Your sheet goes straight to print.</p>
         </div>
 
         <div style="max-width:720px;margin:0 auto;">
@@ -838,7 +847,7 @@
             novalidate
           >
             <input type="hidden" name="Product Type" value="Gang Sheet Order" />
-            <input type="hidden" name="_subject" value="New Gang Sheet Quote — YMPRESSME" />
+            <input type="hidden" name="_subject" value="New Gang Sheet Order (approved, ready to print) — YMPRESSME" />
             <input type="hidden" name="Sheet Size" id="formGangSheetSize" value="" />
             <input type="hidden" name="Design Count" id="formDesignCount" value="" />
             <input type="hidden" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none;" aria-hidden="true" />
@@ -899,16 +908,17 @@
               </div>
             </div>
 
-            <!-- Extra Files (optional — builder uploads are the primary source) -->
-            <div class="form-group">
-              <label>Extra Files <small style="font-weight:400;color:var(--gray);">(optional — only if you didn't already use the builder above)</small></label>
-              <div class="ymp-upload" id="gsUppy" data-max-files="20" data-required="false" data-note="PNG, JPG, SVG, PDF, or ZIP — 300 DPI · Transparent Background · Max 50MB per file."></div>
-              <p class="form-hint">Designs you placed on the sheet above are already attached. Use this box only for extras (font files, color references, or a ZIP of high-res originals).</p>
-            </div>
-
             <div class="form-group">
               <label for="gsNotes">Additional Notes &amp; Instructions</label>
               <textarea id="gsNotes" name="Notes" class="form-control" placeholder="Describe your designs, intended placement, colors, any deadlines, or special instructions…"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label style="display:flex;gap:0.6rem;align-items:flex-start;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="gsApproveLayout" name="Layout Approved" value="Yes — customer approved layout as submitted" required style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;" />
+                <span>I approve my gang sheet layout as shown. I understand it will be printed exactly as submitted, and no separate proof will be sent.</span>
+              </label>
+              <span class="form-error">Please approve your layout to continue.</span>
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg btn-full" id="gsSubmitBtn">
@@ -916,11 +926,11 @@
             </button>
 
             <p style="text-align:center;color:var(--gray);font-size:0.82rem;margin-top:0.75rem;">
-              We'll send a layout proof for your approval before printing. No payment required to get a quote.
+              Your approved layout goes straight to our print queue.
             </p>
 
             <div id="gsFormSuccess" class="alert alert-success hidden" role="alert" style="margin-top:1rem;">
-              ✅ <strong>Order submitted!</strong> We'll send you a layout proof within a few hours.
+              ✅ <strong>Order submitted!</strong> Your gang sheet is in our print queue. We'll reach out if anything needs attention.
             </div>
             <div id="gsFormError" class="alert alert-warning hidden" role="alert" style="margin-top:1rem;">
               ❌ Something went wrong. Email us at <a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a>.
@@ -1063,10 +1073,28 @@
       //  with full support for the new selection panel. We deliberately do
       //  NOT add a duplicate handler here.)
 
-      document.getElementById('gsApplyCustomBtn').addEventListener('click', function () {
+      const lockInp = document.getElementById('gsLockRatio');
+      function currentAspect() {
+        const sel = (typeof window.getSelectedDesign === 'function') ? window.getSelectedDesign() : null;
+        return (sel && sel.w > 0 && sel.h > 0) ? sel.w / sel.h : null;
+      }
+      // With "Keep proportions" on, typing one dimension fills in the other.
+      wInp.addEventListener('input', function () {
+        const a = currentAspect(), w = parseFloat(wInp.value);
+        if (lockInp.checked && a && isFinite(w) && w > 0) hInp.value = (w / a).toFixed(2);
+      });
+      hInp.addEventListener('input', function () {
+        const a = currentAspect(), h = parseFloat(hInp.value);
+        if (lockInp.checked && a && isFinite(h) && h > 0) wInp.value = (h * a).toFixed(2);
+      });
+      function applySize() {
         if (typeof window.applyCustomSize === 'function') {
-          window.applyCustomSize(wInp.value, hInp.value);
+          window.applyCustomSize(wInp.value, hInp.value, lockInp.checked);
         }
+      }
+      document.getElementById('gsApplyCustomBtn').addEventListener('click', applySize);
+      [wInp, hInp].forEach(function (inp) {
+        inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); applySize(); } });
       });
       document.getElementById('gsRotateBtn').addEventListener('click', function () {
         if (typeof window.rotateSelected === 'function') window.rotateSelected();
@@ -1117,6 +1145,9 @@
           textControls.hidden  = true;
           imageControls.open   = true;
         }
+        // Show the selected design's current size (unless the user is typing)
+        if (document.activeElement !== wInp) wInp.value = sel.w.toFixed(2);
+        if (document.activeElement !== hInp) hInp.value = sel.h.toFixed(2);
         // Update rotation slider
         const slider = document.getElementById('gsRotationSlider');
         const val    = document.getElementById('gsRotationVal');
@@ -1172,6 +1203,11 @@
       document.getElementById('gsDuplicateBtn').addEventListener('click', function () {
         const n = parseInt(document.getElementById('gsDupCount').value, 10) || 1;
         if (typeof window.duplicateSelected === 'function') window.duplicateSelected(n);
+      });
+
+      /* Fill the whole sheet with the selected design */
+      document.getElementById('gsFillSheetBtn').addEventListener('click', function () {
+        if (typeof window.fillSheetWithSelected === 'function') window.fillSheetWithSelected();
       });
 
       /* Trim — crops transparent/white edges off the selected image */
@@ -1373,10 +1409,15 @@
       e.preventDefault();
       let valid = true;
       this.querySelectorAll('[required]').forEach(function (f) {
-        if (!f.value.trim()) { f.classList.add('invalid'); valid = false; }
+        const empty = (f.type === 'checkbox') ? !f.checked : !f.value.trim();
+        if (empty) { f.classList.add('invalid'); valid = false; }
         else f.classList.remove('invalid');
       });
-      if (!valid) { showToast('Please fill in all required fields.', 'error'); return; }
+      if (!valid) {
+        const ok = document.getElementById('gsApproveLayout');
+        showToast(ok && !ok.checked ? 'Please check the box to approve your layout.' : 'Please fill in all required fields.', 'error');
+        return;
+      }
 
       if (!window.YMP || !window.YMP.submitInquiry) {
         showToast('Form is still loading — give it a second and try again.', 'error');
@@ -1396,10 +1437,10 @@
         const builderFiles = (typeof window.getBuilderUploads === 'function')
           ? (window.getBuilderUploads() || [])
           : [];
-        const pickedFiles  = window.YMP.getUppyFiles('gsUppy') || [];
+        const pickedFiles  = [];
 
         if (builderFiles.length === 0 && pickedFiles.length === 0) {
-          showToast('Please upload at least one design — either in the builder above, or in the extras box below.', 'error');
+          showToast('Please add at least one design to your sheet in the builder above.', 'error');
           throw new Error('No artwork');
         }
 
@@ -1441,10 +1482,9 @@
         document.getElementById('gsFormSuccess').classList.remove('hidden');
         document.getElementById('gsFormError').classList.add('hidden');
         this.reset();
-        window.YMP.clearUppyFiles('gsUppy');
         if (typeof window.clearBuilderUploads === 'function') window.clearBuilderUploads();
         document.getElementById('layoutReadyAlert').style.display = 'none';
-        showToast('Gang sheet order submitted! We\'ll send a proof soon.', 'success');
+        showToast('Gang sheet order submitted! It\'s headed to print.', 'success');
       } catch (err) {
         console.error(err);
         document.getElementById('gsFormError').classList.remove('hidden');
