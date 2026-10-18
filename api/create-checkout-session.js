@@ -5,6 +5,7 @@
 
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { shippingFor, DELIVERY_DAYS } from '../js/shipping.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -13,6 +14,13 @@ const supabase = createClient(
 );
 
 const MAX_QTY = 500;
+
+// Artwork must live in our own upload bucket. Anything else is rejected, so
+// nobody can push an arbitrary link through to the print queue.
+const ARTWORK_PREFIX =
+  `${process.env.SUPABASE_URL}/storage/v1/object/public/ympressme-uploads/`;
+const okArtwork = u => typeof u === 'string' && u.length <= 450 && u.startsWith(ARTWORK_PREFIX);
+const clip = (s, n) => (typeof s === 'string' ? s.replace(/[\r\n]+/g, ' ').slice(0, n) : '');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -31,7 +39,9 @@ export default async function handler(req, res) {
     }
 
     // ---- normalise + validate the client's request ----
-    const wanted = new Map();
+    // Lines are keyed by variant + artwork, so two different gang sheets
+    // stay two separate lines (each with its own print file).
+    const lines = new Map();
     for (const it of items) {
       const id = String(it?.variant_id ?? '');
       const qty = Number.parseInt(it?.quantity, 10);
@@ -41,7 +51,31 @@ export default async function handler(req, res) {
       if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) {
         return res.status(400).json({ error: 'Bad quantity' });
       }
-      wanted.set(id, (wanted.get(id) ?? 0) + qty);
+      let artwork = null;
+      if (it.artwork_url != null) {
+        if (!okArtwork(it.artwork_url)) {
+          return res.status(400).json({ error: 'Bad artwork link. Please re-upload your design.' });
+        }
+        artwork = {
+          url: it.artwork_url,
+          name: clip(it.artwork_name, 120) || 'artwork',
+          preview_url: okArtwork(it.preview_url) ? it.preview_url : '',
+          note: clip(it.note, 450),
+        };
+      }
+      const key = artwork ? id + '|' + artwork.url : id;
+      const prev = lines.get(key);
+      if (prev) prev.qty = Math.min(MAX_QTY, prev.qty + qty);
+      else lines.set(key, { id, qty, artwork });
+    }
+    const wanted = new Set([...lines.values()].map(l => l.id));
+
+    // ---- signed-in customer? (optional) ----
+    let user = null;
+    const auth = req.headers.authorization || '';
+    if (auth.startsWith('Bearer ')) {
+      const { data } = await supabase.auth.getUser(auth.slice(7));
+      user = data?.user ?? null;
     }
 
     // ---- authoritative price lookup ----
@@ -53,7 +87,7 @@ export default async function handler(req, res) {
                    option1_name, option2_name, option3_name,
                    product_images ( src, position ) )
       `)
-      .in('id', [...wanted.keys()]);
+      .in('id', [...wanted]);
 
     if (error) throw error;
 
@@ -63,17 +97,21 @@ export default async function handler(req, res) {
       });
     }
 
+    const byId = new Map(variants.map(v => [v.id, v]));
     let artworkNeeded = false;
+    let totalItems = 0;
     const line_items = [];
 
-    for (const v of variants) {
+    for (const line of lines.values()) {
+      const v = byId.get(line.id);
       const p = v.products;
       if (!p || p.status !== 'active' || v.available === false) {
         return res.status(409).json({
           error: `"${p?.title ?? 'An item'}" is no longer available.`
         });
       }
-      if (p.needs_artwork) artworkNeeded = true;
+      if (p.needs_artwork && !line.artwork) artworkNeeded = true;
+      totalItems += line.qty;
 
       // human-readable variant label, e.g. "black / 2xl / long"
       const label = [
@@ -87,19 +125,64 @@ export default async function handler(req, res) {
       const img = (p.product_images ?? [])
         .sort((a, b) => a.position - b.position)[0]?.src;
 
+      const description = [label, line.artwork ? `Your design: ${line.artwork.name}` : '']
+        .filter(Boolean).join(' · ');
+
+      const metadata = { variant_id: v.id };
+      if (line.artwork) {
+        metadata.artwork_url = line.artwork.url;
+        if (line.artwork.preview_url) metadata.preview_url = line.artwork.preview_url;
+        if (line.artwork.note) metadata.note = line.artwork.note;
+      }
+
       line_items.push({
-        quantity: wanted.get(v.id),
+        quantity: line.qty,
         price_data: {
           currency: 'usd',
           unit_amount: v.price_cents,          // <- from the database, not the browser
           product_data: {
             name: p.title,
-            description: label || undefined,
-            images: img ? [img] : undefined,
-            metadata: { variant_id: v.id }
+            description: description || undefined,
+            images: line.artwork?.preview_url ? [line.artwork.preview_url] : (img ? [img] : undefined),
+            metadata
           }
         }
       });
+    }
+
+    const ship = shippingFor(totalItems);
+
+    // Signed-in customers: reuse one Stripe customer so name, phone and
+    // address are pre-filled, and new addresses get saved for next time.
+    let stripeCustomer = null;
+    if (user) {
+      try {
+        const { data: prof } = await supabase.from('profiles')
+          .select('full_name, phone, address, stripe_customer_id').eq('id', user.id).maybeSingle();
+        const a = prof?.address || {};
+        const hasAddr = a.line1 && a.city && a.state && a.postal_code;
+        const details = {
+          email: user.email,
+          name: prof?.full_name || undefined,
+          phone: prof?.phone || undefined,
+          metadata: { supabase_user_id: user.id },
+          ...(hasAddr ? { shipping: {
+            name: prof.full_name || user.email,
+            phone: prof.phone || undefined,
+            address: { line1: a.line1, line2: a.line2 || undefined, city: a.city,
+                       state: a.state, postal_code: a.postal_code, country: 'US' }
+          } } : {})
+        };
+        if (prof?.stripe_customer_id) {
+          stripeCustomer = (await stripe.customers.update(prof.stripe_customer_id, details)).id;
+        } else {
+          stripeCustomer = (await stripe.customers.create(details)).id;
+          await supabase.from('profiles').upsert({ id: user.id, stripe_customer_id: stripeCustomer });
+        }
+      } catch (e) {
+        console.warn('stripe customer link skipped:', e.message);   // checkout still works as guest
+        stripeCustomer = null;
+      }
     }
 
     const origin = process.env.SITE_URL || `https://${req.headers.host}`;
@@ -107,7 +190,9 @@ export default async function handler(req, res) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items,
-      customer_email: email || undefined,
+      ...(stripeCustomer
+        ? { customer: stripeCustomer, customer_update: { name: 'auto', shipping: 'auto', address: 'auto' } }
+        : { customer_email: user?.email || email || undefined }),
       billing_address_collection: 'auto',
       shipping_address_collection: { allowed_countries: ['US'] },
       phone_number_collection: { enabled: true },
@@ -116,20 +201,21 @@ export default async function handler(req, res) {
         {
           shipping_rate_data: {
             type: 'fixed_amount',
-            display_name: 'Standard shipping',
-            fixed_amount: { amount: 999, currency: 'usd' },
+            display_name: ship.label,
+            fixed_amount: { amount: ship.cents, currency: 'usd' },
             delivery_estimate: {
-              minimum: { unit: 'business_day', value: 5 },
-              maximum: { unit: 'business_day', value: 10 }
+              minimum: { unit: 'business_day', value: DELIVERY_DAYS.min },
+              maximum: { unit: 'business_day', value: DELIVERY_DAYS.max }
             }
           }
         }
       ],
       metadata: {
         artwork_needed: artworkNeeded ? 'true' : 'false',
-        cart: JSON.stringify([...wanted].map(([id, q]) => ({ id, q }))).slice(0, 480)
+        user_id: user?.id || '',
+        cart: JSON.stringify([...lines.values()].map(l => ({ id: l.id, q: l.qty, a: l.artwork ? 1 : 0 }))).slice(0, 480)
       },
-      success_url: `${origin}/order-confirmed.html?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/order-confirmed.html?session_id={CHECKOUT_SESSION_ID}${artworkNeeded ? '&artwork=1' : ''}`,
       cancel_url: `${origin}/cart.html`
     });
 

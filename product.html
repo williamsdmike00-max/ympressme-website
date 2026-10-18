@@ -49,6 +49,7 @@
       <li><a href="faq.html">FAQ</a></li>
       <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
       <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li><a href="account.html">My Account</a></li>
       <li class="mob-cta"><a href="cart.html">Cart</a></li>
     </ul>
   </div>
@@ -86,6 +87,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
+            <li><a href="account.html">My Account</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -105,11 +107,14 @@
   <script type="module">
     import { getProduct, optionValues, findVariant, money, esc } from './js/store.js';
     import { addItem } from './js/cart.js';
+    import { uploadArtwork, makeThumbnail, ARTWORK_ACCEPT } from './js/artwork.js';
 
     const root   = document.getElementById('pdp');
     const handle = new URLSearchParams(location.search).get('p');
 
     if (!handle) { location.replace('shop.html'); }
+    // Gang sheets are built and approved in the builder, not ordered blind
+    if (handle === 'dtf-gang-sheet-builder') { location.replace('gang-sheet-builder.html'); }
 
     const product = await getProduct(handle).catch(() => null);
 
@@ -143,8 +148,8 @@
           <h1 style="margin-top:0">${esc(product.title)}</h1>
           <div class="pdp-price" id="pdpPrice"></div>
           ${product.needs_artwork ? `<div class="artwork-note">
-            <strong>You'll send us your artwork.</strong> Place your order first &mdash;
-            we'll email you right after with where to upload your files.
+            <label for="artFile"><strong>Upload your design</strong> &mdash; PNG with a transparent background works best (300 DPI).</label>
+            <input type="file" id="artFile" accept="${ARTWORK_ACCEPT}" style="display:block;margin-top:0.5rem;" />
           </div>` : ''}
           <div id="pdpOptions"></div>
 
@@ -225,7 +230,7 @@
       qty.addEventListener('change', clamp);
 
       // ---- add to cart ----
-      document.getElementById('addBtn').onclick = () => {
+      document.getElementById('addBtn').onclick = async () => {
         const v   = current();
         const msg = document.getElementById('pdpMsg');
         if (!v) {
@@ -235,11 +240,30 @@
           return;
         }
         clamp();
+        let artwork = null;
+        if (product.needs_artwork) {
+          const f = document.getElementById('artFile').files[0];
+          if (!f) { msg.textContent = 'Please upload your design first.'; return; }
+          const btn = document.getElementById('addBtn');
+          btn.disabled = true; btn.textContent = 'Uploading design…';
+          try {
+            const url = await uploadArtwork(f, f.name, 'orders');
+            const thumb = await makeThumbnail(f);
+            const preview_url = thumb ? await uploadArtwork(thumb, 'thumb-' + f.name.replace(/\.[^.]+$/, '') + '.png', 'orders') : '';
+            artwork = { url, name: f.name, preview_url };
+          } catch (err) {
+            msg.textContent = err.message || 'Upload failed. Please try again.';
+            btn.disabled = false; btn.textContent = 'Add to Cart';
+            return;
+          }
+          btn.disabled = false; btn.textContent = 'Add to Cart';
+          document.getElementById('artFile').value = '';
+        }
         addItem(v.id, parseInt(qty.value, 10), {
           title: product.title,
           label: [v.option1, v.option2, v.option3].filter(Boolean).join(' / '),
           image: product.hero
-        });
+        }, artwork);
         msg.innerHTML = `Added to cart. <a href="cart.html">View cart &rarr;</a>`;
       };
     }

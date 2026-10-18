@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account | YMPRESSME</title>
+  <meta name="description" content="Your YMPRESSME account: saved details, past orders, and reorders." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="css/store.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo" aria-label="YMPRESSME Home">
+        <img src="assets/logo.png" alt="YMPRESSME Logo" />
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="tshirts.html">T-Shirts</a></li>
+        <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+        <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li class="nav-cta nav-cta-upload"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
+        <li class="nav-cta"><a href="contact.html">Get a Quote</a></li>
+        <li class="nav-cta nav-cart"><a href="cart.html">Cart <span data-cart-count hidden class="cart-badge">0</span></a></li>
+      </ul>
+
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="navMobile" aria-hidden="true">
+    <ul role="list">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="tshirts.html">Custom T-Shirts</a></li>
+      <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+      <li><a href="gang-sheet-builder.html">Gang Sheet Builder</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
+      <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li><a href="account.html">My Account</a></li>
+      <li class="mob-cta"><a href="cart.html">Cart</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <div class="page-hero">
+      <div class="container"><h1>My Account</h1></div>
+    </div>
+    <section class="section">
+      <div class="container" style="max-width:820px">
+        <div id="acctBody" aria-live="polite"><p class="store-empty">Loading&hellip;</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logo.png" alt="YMPRESSME" />
+          <p>"Because you look so good when we do!"</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="shop.html">All Products</a></li>
+            <li><a href="tshirts.html">Custom T-Shirts</a></li>
+            <li><a href="dtf-transfers.html">DTF Transfers</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="account.html">My Account</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="footer-contact-item"><span class="fci-icon">&#128231;</span><a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a></div>
+          <div class="footer-contact-item"><span class="fci-icon">&#128241;</span><a href="tel:+14099375272">(409) 937-5272</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; <span id="footerYear"></span> YMPRESSME. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+  <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+
+  <script type="module">
+    import { getSession, onAuthChange, sendSignInLink, signOut, getProfile, saveProfile, listOrders, reorderItem } from './js/account.js';
+    import { money, esc } from './js/store.js';
+
+    const root = document.getElementById('acctBody');
+    const STATUS = { paid: 'Paid — in queue', in_production: 'Printing', shipped: 'Shipped', cancelled: 'Cancelled', refunded: 'Refunded', pending: 'Pending' };
+
+    function signedOutView() {
+      root.innerHTML = `
+        <div class="acct-card" style="max-width:460px;margin:0 auto;">
+          <h2 style="margin-top:0">Sign in</h2>
+          <p>Enter your email and we'll send you a sign-in link. No password needed.</p>
+          <form id="signinForm" novalidate>
+            <div class="form-group">
+              <label for="siEmail">Email</label>
+              <input type="email" id="siEmail" class="form-control" required autocomplete="email" placeholder="you@example.com" />
+            </div>
+            <button class="btn btn-primary btn-full" id="siBtn">Email me a sign-in link</button>
+            <p class="form-hint mt-2" id="siMsg" role="status" aria-live="polite"></p>
+          </form>
+          <p class="form-hint">With an account you can save your shipping details, see past orders, and reorder transfers in one click.</p>
+        </div>`;
+      document.getElementById('signinForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const email = document.getElementById('siEmail').value.trim();
+        const msg = document.getElementById('siMsg'), btn = document.getElementById('siBtn');
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Please enter a valid email.'; return; }
+        btn.disabled = true; btn.textContent = 'Sending…';
+        try {
+          await sendSignInLink(email);
+          msg.textContent = 'Check your email for the sign-in link. You can close this tab.';
+        } catch (err) {
+          msg.textContent = err.message || 'Could not send the link. Please try again.';
+        } finally { btn.disabled = false; btn.textContent = 'Email me a sign-in link'; }
+      });
+    }
+
+    function orderHtml(o) {
+      const items = (o.order_items || []).map(it => `
+        <div class="acct-item">
+          ${it.preview_url ? `<img src="${esc(it.preview_url)}" alt="" />` : '<div class="acct-thumb"></div>'}
+          <div style="flex:1">
+            <div><strong>${esc(it.product_title)}</strong></div>
+            <div class="cr-opts">${esc(it.variant_label || '')} · Qty ${it.quantity}</div>
+            ${it.artwork_url ? `<a class="cr-opts" href="${esc(it.artwork_url)}" target="_blank" rel="noopener">View design</a>` : ''}
+          </div>
+          <button class="btn btn-sm" data-reorder="${esc(it.id)}">Reorder</button>
+        </div>`).join('');
+      return `<div class="acct-order">
+          <div class="acct-order-head">
+            <span>Order #${esc(o.order_number)} · ${new Date(o.created_at).toLocaleDateString()}</span>
+            <span>${esc(STATUS[o.status] || o.status)} · ${money(o.total_cents)}</span>
+          </div>
+          ${items}
+        </div>`;
+    }
+
+    async function signedInView(session) {
+      root.innerHTML = '<p class="store-empty">Loading your account…</p>';
+      let profile, orders;
+      try {
+        [profile, orders] = await Promise.all([getProfile(), listOrders()]);
+      } catch (err) {
+        root.innerHTML = '<p class="store-empty">Could not load your account. Please refresh.</p>';
+        return;
+      }
+      const a = profile.address || {};
+      root.innerHTML = `
+        <div class="acct-top">
+          <p>Signed in as <strong>${esc(session.user.email)}</strong></p>
+          <button class="cart-link" id="soBtn">Sign out</button>
+        </div>
+
+        <div class="acct-card">
+          <h2 style="margin-top:0">Your details</h2>
+          <p class="form-hint">Saved details fill in automatically at checkout.</p>
+          <form id="profForm" novalidate>
+            <div class="form-row">
+              <div class="form-group"><label for="pfName">Full name</label><input id="pfName" class="form-control" autocomplete="name" value="${esc(profile.full_name || '')}" /></div>
+              <div class="form-group"><label for="pfPhone">Phone</label><input id="pfPhone" class="form-control" type="tel" autocomplete="tel" value="${esc(profile.phone || '')}" /></div>
+            </div>
+            <div class="form-group"><label for="pfL1">Street address</label><input id="pfL1" class="form-control" autocomplete="address-line1" value="${esc(a.line1 || '')}" /></div>
+            <div class="form-group"><label for="pfL2">Apt, suite (optional)</label><input id="pfL2" class="form-control" autocomplete="address-line2" value="${esc(a.line2 || '')}" /></div>
+            <div class="form-row">
+              <div class="form-group"><label for="pfCity">City</label><input id="pfCity" class="form-control" autocomplete="address-level2" value="${esc(a.city || '')}" /></div>
+              <div class="form-group"><label for="pfState">State</label><input id="pfState" class="form-control" maxlength="2" autocomplete="address-level1" value="${esc(a.state || '')}" /></div>
+              <div class="form-group"><label for="pfZip">ZIP</label><input id="pfZip" class="form-control" autocomplete="postal-code" value="${esc(a.postal_code || '')}" /></div>
+            </div>
+            <button class="btn btn-primary" id="pfBtn">Save details</button>
+            <span class="form-hint" id="pfMsg" role="status" aria-live="polite" style="margin-left:0.75rem;"></span>
+          </form>
+        </div>
+
+        <div class="acct-card">
+          <h2 style="margin-top:0">Your orders</h2>
+          ${orders.length ? orders.map(orderHtml).join('') : '<p>No orders yet. <a href="dtf-transfers.html">Order transfers</a> or <a href="gang-sheet-builder.html">build a gang sheet</a>.</p>'}
+          <p class="form-hint" id="roMsg" role="status" aria-live="polite"></p>
+        </div>`;
+
+      document.getElementById('soBtn').onclick = async () => { await signOut(); signedOutView(); };
+
+      document.getElementById('profForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const v = id => document.getElementById(id).value.trim();
+        const msg = document.getElementById('pfMsg');
+        try {
+          await saveProfile({
+            full_name: v('pfName'), phone: v('pfPhone'),
+            address: { line1: v('pfL1'), line2: v('pfL2'), city: v('pfCity'), state: v('pfState').toUpperCase(), postal_code: v('pfZip'), country: 'US' }
+          });
+          msg.textContent = 'Saved.';
+        } catch (err) { msg.textContent = err.message || 'Could not save.'; }
+      });
+
+      const itemsById = new Map(orders.flatMap(o => o.order_items || []).map(it => [it.id, it]));
+      root.querySelectorAll('[data-reorder]').forEach(b => b.addEventListener('click', async () => {
+        const msg = document.getElementById('roMsg');
+        try {
+          await reorderItem(itemsById.get(b.dataset.reorder));
+          msg.innerHTML = 'Added to cart. <a href="cart.html">Check out &rarr;</a>';
+        } catch (err) { msg.textContent = err.message; }
+      }));
+    }
+
+    async function show(session) { session ? signedInView(session) : signedOutView(); }
+    show(await getSession());
+    onAuthChange(s => { if (s && !root.querySelector('#profForm')) show(s); });
+  </script>
+</body>
+</html>

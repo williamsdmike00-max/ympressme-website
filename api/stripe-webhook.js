@@ -80,6 +80,8 @@ export default async function handler(req, res) {
                           ?? full.customer_details?.address
                           ?? null,
         artwork_needed: full.metadata?.artwork_needed === 'true',
+        user_id: /^[0-9a-f-]{36}$/i.test(full.metadata?.user_id || '') ? full.metadata.user_id : null,
+        customer_name: full.customer_details?.name ?? null,
         paid_at: new Date().toISOString()
       })
       .select('id')
@@ -93,12 +95,33 @@ export default async function handler(req, res) {
       product_title: li.price?.product?.name ?? li.description ?? 'Item',
       variant_label: li.price?.product?.description ?? null,
       quantity: li.quantity ?? 1,
-      unit_price_cents: li.price?.unit_amount ?? 0
+      unit_price_cents: li.price?.unit_amount ?? 0,
+      artwork_url: li.price?.product?.metadata?.artwork_url ?? null,
+      preview_url: li.price?.product?.metadata?.preview_url ?? null,
+      note: li.price?.product?.metadata?.note ?? null
     }));
 
     if (items.length) {
       const { error: itemErr } = await supabase.from('order_items').insert(items);
       if (itemErr) throw itemErr;
+    }
+
+    // Signed-in customer with no saved address yet? Save this one for next time.
+    const uid = /^[0-9a-f-]{36}$/i.test(full.metadata?.user_id || '') ? full.metadata.user_id : null;
+    const shipTo = full.collected_information?.shipping_details ?? full.shipping_details;
+    if (uid && shipTo?.address?.line1) {
+      const { data: prof } = await supabase.from('profiles').select('address').eq('id', uid).maybeSingle();
+      if (!prof?.address?.line1) {
+        const ad = shipTo.address;
+        await supabase.from('profiles').upsert({
+          id: uid,
+          full_name: shipTo.name || full.customer_details?.name || null,
+          phone: full.customer_details?.phone || null,
+          address: { line1: ad.line1, line2: ad.line2 || '', city: ad.city, state: ad.state,
+                     postal_code: ad.postal_code, country: ad.country || 'US' },
+          updated_at: new Date().toISOString()
+        });
+      }
     }
 
     return res.status(200).json({ received: true, order_id: order.id });

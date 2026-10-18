@@ -51,6 +51,7 @@
       <li><a href="faq.html">FAQ</a></li>
       <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
       <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li><a href="account.html">My Account</a></li>
       <li class="mob-cta"><a href="cart.html">Cart</a></li>
     </ul>
   </div>
@@ -177,7 +178,7 @@
                   <div id="dtfQtyWrap">
                     <div class="qty-wrap">
                       <button class="qty-btn" data-dir="-1" aria-label="Decrease quantity" type="button">−</button>
-                      <input class="qty-input" type="number" id="dtfQty" value="12" min="1" max="9999" aria-label="Quantity" />
+                      <input class="qty-input" type="number" id="dtfQty" value="12" min="1" max="500" aria-label="Quantity" />
                       <button class="qty-btn" data-dir="1" aria-label="Increase quantity" type="button">+</button>
                     </div>
                   </div>
@@ -240,7 +241,13 @@
                   <span>Flat price per transfer — no quantity minimums. Order exactly what you need!</span>
                 </div>
 
-                <a href="#dtfQuote" class="btn btn-primary btn-full mt-3">Request This Order</a>
+                <div class="form-group mt-3">
+                  <label for="dtfArtFile"><strong>Upload your design</strong></label>
+                  <input type="file" id="dtfArtFile" class="form-control" />
+                  <p class="form-hint">PNG with a transparent background, 300 DPI, works best.</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-full" id="dtfAddBtn">Add to Cart</button>
+                <p class="form-hint" id="dtfAddMsg" role="status" aria-live="polite" style="margin-top:0.5rem;"></p>
               </div>
             </div>
           </div>
@@ -305,7 +312,15 @@
                   <span>Want to visually arrange your designs first? <a href="gang-sheet-builder.html"><strong>Try the Gang Sheet Builder →</strong></a></span>
                 </div>
 
-                <a href="#dtfQuote" class="btn btn-primary btn-full mt-3">Request This Order</a>
+                <a href="gang-sheet-builder.html" class="btn btn-primary btn-full mt-3">Build My Gang Sheet →</a>
+
+                <div class="form-group mt-3" style="border-top:1px solid var(--border);padding-top:1rem;">
+                  <label for="gsArtFile"><strong>Already have a finished sheet?</strong> Upload it here.</label>
+                  <input type="file" id="gsArtFile" class="form-control" />
+                  <p class="form-hint">One print-ready file sized to the sheet you picked (18" wide, 300 DPI).</p>
+                </div>
+                <button type="button" class="btn btn-full" id="gsAddBtn" style="border:2px solid var(--primary);">Add Sheet to Cart</button>
+                <p class="form-hint" id="gsAddMsg" role="status" aria-live="polite" style="margin-top:0.5rem;"></p>
               </div>
             </div>
           </div>
@@ -313,138 +328,12 @@
       </div>
     </section>
 
-    <!-- ====== QUOTE FORM ====== -->
+    <!-- ====== CUSTOM ORDERS ====== -->
     <section id="dtfQuote" aria-labelledby="dtfQuoteHeading">
-      <div class="container">
-        <div class="section-header fade-in">
-          <span class="section-label">Order Now</span>
-          <h2 id="dtfQuoteHeading">Submit Your <span class="text-accent">DTF Transfer Quote</span></h2>
-          <p>Upload your artwork and order details. We'll confirm your quote within a few hours.</p>
-        </div>
-
-        <div style="max-width:720px;margin:0 auto;" class="fade-in">
-          <!-- Submits to /api/send-inquiry via js/inquiry-submit.js -->
-          <form
-            id="dtfQuoteForm"
-            action="/api/send-inquiry"
-            method="POST"
-            novalidate
-          >
-            <input type="hidden" name="Product Type" value="DTF Transfer Order" />
-            <input type="hidden" name="_subject" value="New DTF Transfer Quote — YMPRESSME" />
-            <input type="hidden" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none;" aria-hidden="true" />
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="dtfFirstName">First Name <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="dtfFirstName" name="First Name" class="form-control" placeholder="Jane" required autocomplete="given-name" />
-                <span class="form-error">Required.</span>
-              </div>
-              <div class="form-group">
-                <label for="dtfLastName">Last Name <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="dtfLastName" name="Last Name" class="form-control" placeholder="Smith" required autocomplete="family-name" />
-                <span class="form-error">Required.</span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="dtfEmail">Email Address <span class="req" aria-hidden="true">*</span></label>
-                <input type="email" id="dtfEmail" name="Email" class="form-control" placeholder="jane@example.com" required autocomplete="email" />
-                <span class="form-error">Please enter a valid email.</span>
-              </div>
-              <div class="form-group">
-                <label for="dtfPhone">Phone Number</label>
-                <input type="tel" id="dtfPhone" name="Phone" class="form-control" placeholder="(409) 937-5272" autocomplete="tel" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="dtfOrderType">Order Type <span class="req" aria-hidden="true">*</span></label>
-              <select id="dtfOrderType" name="Order Type" class="form-control" required>
-                <option value="">Select…</option>
-                <option value="Single-Size Transfers">Single-Size Transfers</option>
-                <option value="Gang Sheet">Gang Sheet</option>
-                <option value="Both">Both (Single-Size + Gang Sheet)</option>
-              </select>
-              <span class="form-error">Required.</span>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="dtfTransferSize">Transfer / Sheet Size <span class="req" aria-hidden="true">*</span></label>
-                <select id="dtfTransferSize" name="Transfer Size" class="form-control" required>
-                  <option value="">Select…</option>
-                  <optgroup label="Single-Size Transfers">
-                    <option>1.5"</option>
-                    <option>2"</option>
-                    <option>3"</option>
-                    <option>4"</option>
-                    <option>5"</option>
-                    <option>8"</option>
-                    <option>9"</option>
-                    <option>10"</option>
-                    <option>10.5"</option>
-                    <option>11"</option>
-                    <option>11.5"</option>
-                    <option>12"</option>
-                    <option>12.5"</option>
-                    <option>13"</option>
-                    <option>14"</option>
-                    <option>15"</option>
-                    <option>16"</option>
-                    <option>17"</option>
-                    <option>18"</option>
-                  </optgroup>
-                  <optgroup label="Gang Sheets">
-                    <option>Gang Sheet — 18" × 24"</option>
-                    <option>Gang Sheet — 18" × 60"</option>
-                    <option>Gang Sheet — 18" × 80"</option>
-                    <option>Gang Sheet — 18" × 120"</option>
-                    <option>Gang Sheet — 18" × 140"</option>
-                    <option>Gang Sheet — 18" × 180"</option>
-                    <option>Gang Sheet — 18" × 200"</option>
-                    <option>Gang Sheet — 18" × 240"</option>
-                    <option>Gang Sheet — 18" × 280"</option>
-                    <option>Gang Sheet — 18" × 360"</option>
-                    <option>Gang Sheet — 18" × 500"</option>
-                  </optgroup>
-                </select>
-                <span class="form-error">Required.</span>
-              </div>
-              <div class="form-group">
-                <label for="dtfOrderQty">Quantity <span class="req" aria-hidden="true">*</span></label>
-                <input type="number" id="dtfOrderQty" name="Quantity" class="form-control" placeholder="e.g. 24" min="1" required />
-                <span class="form-error">Required.</span>
-              </div>
-            </div>
-
-            <!-- File Upload -->
-            <div class="form-group">
-              <label>Upload Your Artwork <span class="req" aria-hidden="true">*</span></label>
-              <div class="ymp-upload" id="dtfUppy" data-max-files="20" data-required="true" data-note="Drop multiple files, browse, or use your camera. 300 DPI · Transparent Background · RGB · Max 50MB per file."></div>
-              <p class="form-hint">For gang sheets: upload all designs as separate files or one ZIP. For single-size: upload one design file.</p>
-            </div>
-
-            <div class="form-group">
-              <label for="dtfNotes">Additional Notes</label>
-              <textarea id="dtfNotes" name="Notes" class="form-control" placeholder="Describe your designs, specific colors, deadlines, multiple designs, etc."></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg btn-full" id="dtfSubmitBtn">Submit Quote Request</button>
-
-            <p style="text-align:center;color:var(--gray);font-size:0.82rem;margin-top:0.75rem;">
-              Response within 2–4 business hours. No payment to get a quote.
-            </p>
-
-            <div id="dtfFormSuccess" class="alert alert-success hidden" role="alert" style="margin-top:1rem;">
-              ✅ <strong>Quote submitted!</strong> We'll be in touch shortly.
-            </div>
-            <div id="dtfFormError" class="alert alert-warning hidden" role="alert" style="margin-top:1rem;">
-              ❌ Something went wrong. Email us at <a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a>.
-            </div>
-          </form>
-        </div>
+      <div class="container" style="text-align:center;max-width:720px;">
+        <h2 id="dtfQuoteHeading">Need Something <span class="text-accent">Custom?</span></h2>
+        <p>Odd sizes, rush jobs, or big wholesale runs: send us the details and we'll put together a price.</p>
+        <a href="contact.html" class="btn btn-primary mt-2">Contact Us</a>
       </div>
     </section>
 
@@ -484,6 +373,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
+            <li><a href="account.html">My Account</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -501,7 +391,6 @@
   <script src="js/main.js"></script>
   <script src="js/homepage.js"></script>
   <script src="js/pricing.js?v=2"></script>
-  <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
 
@@ -577,60 +466,88 @@
     })();
 
     /* ---- Form submit ---- */
-    document.getElementById('dtfQuoteForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      let valid = true;
-      this.querySelectorAll('[required]').forEach(function (f) {
-        if (!f.value.trim()) { f.classList.add('invalid'); valid = false; }
-        else f.classList.remove('invalid');
+  </script>
+  <script type="module">
+    /* Prices come from the shop database, so this page always shows exactly
+       what checkout will charge. Then: upload artwork → add to cart. */
+    import { getProduct, money } from './js/store.js';
+    import { addItem } from './js/cart.js';
+    import { uploadArtwork, makeThumbnail, ARTWORK_ACCEPT } from './js/artwork.js';
+
+    const sizeSel = document.getElementById('dtfSize');
+    const gangSel = document.getElementById('gangSheetSize');
+    document.getElementById('dtfArtFile').accept = ARTWORK_ACCEPT;
+    document.getElementById('gsArtFile').accept  = ARTWORK_ACCEPT;
+
+    const [dtf, gang] = await Promise.all([
+      getProduct('dtf-individual-print-images').catch(() => null),
+      getProduct('dtf-gang-sheet-builder').catch(() => null),
+    ]);
+
+    // ---- sync individual transfer prices from the database ----
+    if (dtf && typeof DTF_PRICES !== 'undefined') {
+      const bySize = new Map(dtf.variants.map(v => [String(v.option1).replace(/"/g, ''), v]));
+      DTF_PRICES.forEach(row => { const v = bySize.get(row.key); if (v) row.price = v.price_cents / 100; });
+      [...sizeSel.options].forEach(o => {
+        const v = bySize.get(o.value);
+        if (v) o.textContent = `${o.value}" \u2014 ${money(v.price_cents)} each`;
+        else o.disabled = true;
       });
-      if (!valid) { showToast('Please fill in all required fields.', 'error'); return; }
+      const rows = document.querySelectorAll('table[aria-label="DTF transfer pricing by size"] tbody tr');
+      rows.forEach(tr => {
+        const key = tr.cells[0].textContent.replace(/["\s]/g, '');
+        const v = bySize.get(key);
+        if (v) tr.cells[1].textContent = money(v.price_cents);
+      });
+      sizeSel.dispatchEvent(new Event('change'));
+    }
 
-      if (!window.YMP || !window.YMP.submitInquiry) {
-        showToast('Form is still loading — give it a second and try again.', 'error');
-        return;
-      }
+    // ---- sync gang sheet prices from the database ----
+    const gangVariant = key => gang && gang.variants.find(v => v.option1 === key.replace('x', ' x '));
+    if (gang) {
+      [...gangSel.options].forEach(o => {
+        const v = gangVariant(o.value);
+        if (v) o.textContent = `${o.value.replace('x', '" × ')}" \u2014 ${money(v.price_cents)}`;
+      });
+    }
 
-      const btn = document.getElementById('dtfSubmitBtn');
-      btn.textContent = 'Sending…'; btn.disabled = true;
+    async function addWithArtwork({ fileInput, msgEl, btn, variant, qty, display }) {
+      const f = fileInput.files[0];
+      if (!variant) { msgEl.textContent = 'That size is not available right now.'; return; }
+      if (!f) { msgEl.textContent = 'Please upload your design first.'; return; }
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Uploading design…'; msgEl.textContent = '';
       try {
-        const fd = new FormData(this);
-        const fields = {};
-        for (const [k, v] of fd.entries()) {
-          if (k === '_subject' || k === '_gotcha') continue;
-          if (v) fields[k] = v;
-        }
-
-        const pickedFiles = window.YMP.getUppyFiles('dtfUppy') || [];
-        if (pickedFiles.length === 0) {
-          showToast('Please upload at least one artwork file.', 'error');
-          throw new Error('No artwork');
-        }
-        const files = pickedFiles.map(function (file) {
-          return { file, label: 'Artwork — ' + file.name };
-        });
-
-        await window.YMP.submitInquiry({
-          formType: 'DTF Transfer Quote',
-          subject: fd.get('_subject') || 'New DTF Transfer Quote — YMPRESSME',
-          fields,
-          files,
-          replyTo: fd.get('Email') || null,
-          honeypot: fd.get('_gotcha') || '',
-        });
-
-        document.getElementById('dtfFormSuccess').classList.remove('hidden');
-        document.getElementById('dtfFormError').classList.add('hidden');
-        this.reset();
-        window.YMP.clearUppyFiles('dtfUppy');
-        showToast('Quote submitted! We\'ll be in touch soon.', 'success');
+        const url = await uploadArtwork(f, f.name, 'orders');
+        const thumb = await makeThumbnail(f);
+        const preview_url = thumb ? await uploadArtwork(thumb, 'thumb-' + f.name.replace(/\.[^.]+$/, '') + '.png', 'orders') : '';
+        addItem(variant.id, qty, display, { url, name: f.name, preview_url });
+        fileInput.value = '';
+        msgEl.innerHTML = 'Added to cart. <a href="cart.html">Check out &rarr;</a>';
       } catch (err) {
-        console.error(err);
-        document.getElementById('dtfFormError').classList.remove('hidden');
-        showToast('Submission failed. Please try again.', 'error');
+        msgEl.textContent = err.message || 'Upload failed. Please try again.';
       } finally {
-        btn.textContent = 'Submit Quote Request'; btn.disabled = false;
+        btn.disabled = false; btn.textContent = label;
       }
+    }
+
+    document.getElementById('dtfAddBtn').addEventListener('click', e => {
+      const v = dtf && dtf.variants.find(x => String(x.option1).replace(/"/g, '') === sizeSel.value);
+      const qty = Math.max(1, Math.min(500, parseInt(document.getElementById('dtfQty').value, 10) || 1));
+      addWithArtwork({
+        fileInput: document.getElementById('dtfArtFile'), msgEl: document.getElementById('dtfAddMsg'),
+        btn: e.currentTarget, variant: v, qty,
+        display: { title: 'DTF Transfer', label: sizeSel.value + '"' },
+      });
+    });
+
+    document.getElementById('gsAddBtn').addEventListener('click', e => {
+      const qty = Math.max(1, Math.min(500, parseInt(document.getElementById('gangSheetQty').value, 10) || 1));
+      addWithArtwork({
+        fileInput: document.getElementById('gsArtFile'), msgEl: document.getElementById('gsAddMsg'),
+        btn: e.currentTarget, variant: gangVariant(gangSel.value), qty,
+        display: { title: 'DTF Gang Sheet', label: gangSel.value },
+      });
     });
   </script>
   <script type="module" src="js/cart.js"></script>

@@ -111,6 +111,8 @@
       .map(function (u) { return u.file; });
   };
 
+  window.getDesignCount = function () { return designs.length; };
+
   window.clearBuilderUploads = function () {
     uploads = [];
     activeUploadId = null;
@@ -1260,7 +1262,7 @@
         buildQuoteSummary();
         const quoteSection = document.getElementById('gangSheetQuote');
         if (quoteSection) quoteSection.scrollIntoView({ behavior: 'smooth' });
-        window.showToast && window.showToast('Layout ready! Fill in your details below.', 'success');
+        window.showToast && window.showToast('Layout ready! Approve it below to check out.', 'success');
       });
     }
   }

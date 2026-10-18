@@ -380,6 +380,11 @@
       text-align: right;
     }
 
+    /* Order summary card */
+    .gs-order-summary { background: var(--gray-light); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+    .gs-order-summary > div { display:flex; justify-content:space-between; padding:0.3rem 0; font-size:0.95rem; }
+    .gs-order-summary .gso-total { border-top:1px solid var(--border); margin-top:0.4rem; padding-top:0.6rem; font-size:1.05rem; }
+
     /* Keep-proportions toggle */
     .gs-lock-row { display:flex; align-items:flex-start; gap:0.4rem; margin:0.45rem 0 0.6rem; font-size:0.8rem; cursor:pointer; line-height:1.3; }
     .gs-lock-row input { margin-top:0.15rem; }
@@ -544,6 +549,7 @@
       <li><a href="faq.html">FAQ</a></li>
       <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
       <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li><a href="account.html">My Account</a></li>
       <li class="mob-cta"><a href="cart.html">Cart</a></li>
     </ul>
   </div>
@@ -554,7 +560,7 @@
     <div class="builder-page-hero">
       <div class="container">
         <h1>🗂️ Gang Sheet Builder</h1>
-        <p>Upload your designs, drag-arrange them on the sheet, then click "Add to Quote."</p>
+        <p>Upload your designs, arrange them on the sheet, then check out. Your sheet goes straight to print.</p>
       </div>
     </div>
 
@@ -809,7 +815,7 @@
             </div>
 
             <button type="button" class="gs-btn gs-primary" id="builderAddToQuote" style="margin-top:1rem;">
-              ✅ Add to Quote →
+              ✅ Continue to Checkout →
             </button>
 
             <button type="button" class="gs-btn" id="builderRemoveSelected" style="margin-top:0.5rem;" hidden>
@@ -824,117 +830,55 @@
       </div>
     </section>
 
-    <!-- ====== QUOTE FORM ====== -->
+    <!-- ====== ORDER (approve + pay) ====== -->
     <section class="quote-section" id="gangSheetQuote" aria-labelledby="gsQuoteHeading">
       <div class="container">
         <div class="section-header">
           <span class="section-label">Order Now</span>
-          <h2 id="gsQuoteHeading">Submit Your <span class="text-accent">Gang Sheet Order</span></h2>
-          <p>Fill in your contact details, approve your layout, and submit. Your sheet goes straight to print.</p>
+          <h2 id="gsQuoteHeading">Approve &amp; <span class="text-accent">Check Out</span></h2>
+          <p>Review your sheet, approve the layout, and pay. Your approved sheet goes straight to print.</p>
         </div>
 
         <div style="max-width:720px;margin:0 auto;">
-
           <div class="alert alert-info" id="layoutReadyAlert" style="display:none;margin-bottom:1.5rem;">
             <span class="alert-icon" aria-hidden="true">✅</span>
-            <span>Your gang sheet layout has been added to this form. Fill in your details below and submit.</span>
+            <span>Your layout is ready. Approve it below to add it to your cart.</span>
           </div>
 
-          <form
-            id="gangSheetQuoteForm"
-            action="/api/send-inquiry"
-            method="POST"
-            novalidate
-          >
-            <input type="hidden" name="Product Type" value="Gang Sheet Order" />
-            <input type="hidden" name="_subject" value="New Gang Sheet Order (approved, ready to print) — YMPRESSME" />
-            <input type="hidden" name="Sheet Size" id="formGangSheetSize" value="" />
-            <input type="hidden" name="Design Count" id="formDesignCount" value="" />
-            <input type="hidden" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none;" aria-hidden="true" />
+          <form id="gangSheetQuoteForm" novalidate>
+            <!-- kept for the builder's summary code -->
+            <input type="hidden" id="formGangSheetSize" value="" />
+            <input type="hidden" id="formDesignCount" value="" />
+            <input type="hidden" id="gsNumSheets" value="1" />
+            <select id="gsSheetSizeForm" hidden aria-hidden="true" tabindex="-1"></select>
+            <textarea id="gangSheetSummaryText" hidden aria-hidden="true" tabindex="-1"></textarea>
 
-            <div class="form-group">
-              <label for="gsLayoutSummary">Layout Summary (auto-filled by builder)</label>
-              <textarea id="gangSheetSummaryText" name="Layout Summary" class="form-control" rows="5" readonly placeholder="Use the Gang Sheet Builder above to generate your layout summary…" style="background:var(--gray-light);font-family:monospace;font-size:0.82rem;"></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="gsFirstName">First Name <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="gsFirstName" name="First Name" class="form-control" placeholder="Jane" required autocomplete="given-name" />
-                <span class="form-error">Required.</span>
-              </div>
-              <div class="form-group">
-                <label for="gsLastName">Last Name <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="gsLastName" name="Last Name" class="form-control" placeholder="Smith" required autocomplete="family-name" />
-                <span class="form-error">Required.</span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="gsEmail">Email Address <span class="req" aria-hidden="true">*</span></label>
-                <input type="email" id="gsEmail" name="Email" class="form-control" placeholder="jane@example.com" required autocomplete="email" />
-                <span class="form-error">Valid email required.</span>
-              </div>
-              <div class="form-group">
-                <label for="gsPhone">Phone Number</label>
-                <input type="tel" id="gsPhone" name="Phone" class="form-control" placeholder="(409) 937-5272" autocomplete="tel" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="gsSheetSizeForm">Sheet Size <span class="req" aria-hidden="true">*</span></label>
-                <select id="gsSheetSizeForm" name="Sheet Size (Confirmed)" class="form-control" required>
-                  <option value="">Select…</option>
-                  <option value='18" × 24"' selected>18" × 24" — $5.99</option>
-                  <option value='18" × 60"'>18" × 60" — $16.99</option>
-                  <option value='18" × 80"'>18" × 80" — $24.99</option>
-                  <option value='18" × 120"'>18" × 120" — $32.99</option>
-                  <option value='18" × 140"'>18" × 140" — $40.99</option>
-                  <option value='18" × 180"'>18" × 180" — $49.99</option>
-                  <option value='18" × 200"'>18" × 200" — $57.99</option>
-                  <option value='18" × 240"'>18" × 240" — $69.99</option>
-                  <option value='18" × 280"'>18" × 280" — $82.99</option>
-                  <option value='18" × 360"'>18" × 360" — $103.99</option>
-                  <option value='18" × 500"'>18" × 500" — $132.99</option>
-                </select>
-                <span class="form-error">Required.</span>
-              </div>
-              <div class="form-group">
-                <label for="gsNumSheets">Number of Sheets <span class="req" aria-hidden="true">*</span></label>
-                <input type="number" id="gsNumSheets" name="Number of Sheets" class="form-control" value="1" min="1" required />
-                <span class="form-error">Required.</span>
-              </div>
+            <div class="gs-order-summary" id="gsOrderSummary">
+              <div><span>Sheet size</span><strong id="gsoSize">—</strong></div>
+              <div><span>Designs on sheet</span><strong id="gsoCount">0</strong></div>
+              <div><span>Number of sheets</span><strong id="gsoQty">1</strong></div>
+              <div class="gso-total"><span>Subtotal</span><strong id="gsoTotal">—</strong></div>
             </div>
 
             <div class="form-group">
-              <label for="gsNotes">Additional Notes &amp; Instructions</label>
-              <textarea id="gsNotes" name="Notes" class="form-control" placeholder="Describe your designs, intended placement, colors, any deadlines, or special instructions…"></textarea>
+              <label for="gsNotes">Notes for the printer <small style="font-weight:400;color:var(--gray);">(optional)</small></label>
+              <textarea id="gsNotes" class="form-control" maxlength="400" placeholder="Deadlines, color notes, or anything we should know…"></textarea>
             </div>
 
             <div class="form-group">
               <label style="display:flex;gap:0.6rem;align-items:flex-start;font-weight:600;cursor:pointer;">
-                <input type="checkbox" id="gsApproveLayout" name="Layout Approved" value="Yes — customer approved layout as submitted" required style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;" />
+                <input type="checkbox" id="gsApproveLayout" style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;" />
                 <span>I approve my gang sheet layout as shown. I understand it will be printed exactly as submitted, and no separate proof will be sent.</span>
               </label>
-              <span class="form-error">Please approve your layout to continue.</span>
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg btn-full" id="gsSubmitBtn">
-              Submit Gang Sheet Order
+              Add to Cart &amp; Check Out
             </button>
-
             <p style="text-align:center;color:var(--gray);font-size:0.82rem;margin-top:0.75rem;">
-              Your approved layout goes straight to our print queue.
+              Secure payment by Stripe. We print your sheet exactly as approved.
             </p>
-
-            <div id="gsFormSuccess" class="alert alert-success hidden" role="alert" style="margin-top:1rem;">
-              ✅ <strong>Order submitted!</strong> Your gang sheet is in our print queue. We'll reach out if anything needs attention.
-            </div>
-            <div id="gsFormError" class="alert alert-warning hidden" role="alert" style="margin-top:1rem;">
-              ❌ Something went wrong. Email us at <a href="mailto:ympressme@yahoo.com">ympressme@yahoo.com</a>.
-            </div>
+            <div id="gsFormError" class="alert alert-warning hidden" role="alert" style="margin-top:1rem;"></div>
           </form>
         </div>
       </div>
@@ -964,6 +908,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
+            <li><a href="account.html">My Account</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -1023,8 +968,7 @@
   </div>
 
   <script src="js/vendor/pako_deflate.min.js"></script>
-  <script src="js/gang-sheet-builder.js?v=15"></script>
-  <script type="module" src="js/inquiry-submit.js"></script>
+  <script src="js/gang-sheet-builder.js?v=16"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
 
@@ -1405,111 +1349,99 @@
       document.getElementById('layoutReadyAlert').style.display = 'flex';
     }, true);
 
-    /* ---- Form submit — merges builder uploads + any extras ---- */
-    document.getElementById('gangSheetQuoteForm').addEventListener('submit', async function (e) {
+  </script>
+  <script type="module">
+    /* ---- Approve → build print file → upload → add to cart → checkout ---- */
+    import { getProduct } from './js/store.js';
+    import { addItem } from './js/cart.js';
+    import { uploadArtwork } from './js/artwork.js';
+
+    const form   = document.getElementById('gangSheetQuoteForm');
+    const btn    = document.getElementById('gsSubmitBtn');
+    const errBox = document.getElementById('gsFormError');
+    const qtyInp = document.getElementById('gangSheetQtyInput');
+
+    function sheetInfo() {
+      const active = document.querySelector('.gs-sheet-btn.active');
+      const key = active ? active.dataset.sheet : '18x24';           // "18x240"
+      const [w, h] = key.split('x');
+      const price = parseFloat((active ? active.textContent : '').split('$')[1]) || null;
+      return { key, label: w + '" × ' + h + '"', option: w + ' x ' + h, price };
+    }
+    function designCount() {
+      return typeof window.getDesignCount === 'function' ? window.getDesignCount() : 0;
+    }
+    function paintSummary() {
+      const s = sheetInfo();
+      const q = Math.max(1, parseInt(qtyInp.value, 10) || 1);
+      document.getElementById('gsoSize').textContent  = s.label;
+      document.getElementById('gsoCount').textContent = designCount();
+      document.getElementById('gsoQty').textContent   = q;
+      document.getElementById('gsoTotal').textContent = s.price ? '$' + (s.price * q).toFixed(2) : '—';
+    }
+    window.addEventListener('gsb-selection-changed', paintSummary);
+    qtyInp.addEventListener('input', paintSummary);
+    document.querySelectorAll('.gs-sheet-btn').forEach(b => b.addEventListener('click', () => setTimeout(paintSummary, 0)));
+    document.getElementById('builderAddToQuote').addEventListener('click', () => setTimeout(paintSummary, 0));
+    paintSummary();
+
+    let gangProduct = null;
+    async function variantFor(option) {
+      if (!gangProduct) gangProduct = await getProduct('dtf-gang-sheet-builder');
+      return gangProduct && gangProduct.variants.find(v => v.option1 === option);
+    }
+
+    function fail(msg) {
+      errBox.textContent = msg;
+      errBox.classList.remove('hidden');
+      window.showToast && window.showToast(msg, 'error');
+    }
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      let valid = true;
-      this.querySelectorAll('[required]').forEach(function (f) {
-        const empty = (f.type === 'checkbox') ? !f.checked : !f.value.trim();
-        if (empty) { f.classList.add('invalid'); valid = false; }
-        else f.classList.remove('invalid');
-      });
-      if (!valid) {
-        const ok = document.getElementById('gsApproveLayout');
-        showToast(ok && !ok.checked ? 'Please check the box to approve your layout.' : 'Please fill in all required fields.', 'error');
-        return;
-      }
+      errBox.classList.add('hidden');
 
-      if (!window.YMP || !window.YMP.submitInquiry) {
-        showToast('Form is still loading — give it a second and try again.', 'error');
-        return;
-      }
+      const builderFiles = (typeof window.getBuilderUploads === 'function') ? (window.getBuilderUploads() || []) : [];
+      if (!builderFiles.length) return fail('Add at least one design to your sheet in the builder above.');
+      if (!document.getElementById('gsApproveLayout').checked) return fail('Please check the box to approve your layout.');
 
-      const btn = document.getElementById('gsSubmitBtn');
-      btn.textContent = 'Sending…'; btn.disabled = true;
+      const sheet = sheetInfo();
+      const qty = Math.max(1, Math.min(500, parseInt(qtyInp.value, 10) || 1));
+      btn.disabled = true;
       try {
-        const fd = new FormData(this);
-        const fields = {};
-        for (const [k, v] of fd.entries()) {
-          if (k === '_subject' || k === '_gotcha') continue;
-          if (v && typeof v === 'string') fields[k] = v;   // skip File objects
-        }
+        btn.textContent = 'Checking sheet…';
+        const variant = await variantFor(sheet.option);
+        if (!variant) throw new Error('That sheet size is not available right now. Please pick another size.');
 
-        const builderFiles = (typeof window.getBuilderUploads === 'function')
-          ? (window.getBuilderUploads() || [])
-          : [];
-        const pickedFiles  = [];
+        const printBlob = await window.buildPrintFile(pct => {
+          btn.textContent = 'Building print file… ' + Math.round(pct * 100) + '%';
+        });
+        btn.textContent = 'Uploading…';
+        const name = window.getPrintFileName();
+        const printUrl = await uploadArtwork(printBlob, name, 'orders');
 
-        if (builderFiles.length === 0 && pickedFiles.length === 0) {
-          showToast('Please add at least one design to your sheet in the builder above.', 'error');
-          throw new Error('No artwork');
-        }
+        let previewUrl = '';
+        try {
+          const dataUrl = window.exportSheetLayout();
+          const previewBlob = await fetch(dataUrl).then(r => r.blob());
+          previewUrl = await uploadArtwork(previewBlob, 'preview-' + name, 'orders');
+        } catch (_) { /* preview is nice-to-have */ }
 
-        const filesToUpload = [].concat(
-          builderFiles.map(function (file) {
-            return { file: file, label: 'Customer Design (from builder) — ' + file.name };
-          }),
-          pickedFiles.map(function (file) {
-            return { file: file, label: 'Customer Design — ' + file.name };
-          })
-        );
-
-        // Print-ready 300 DPI sheet — this is the file that goes to the printer
-        if (typeof window.buildPrintFile === 'function') {
-          try {
-            const printBlob = await window.buildPrintFile(function (pct) {
-              btn.textContent = 'Preparing print file… ' + Math.round(pct * 100) + '%';
-            });
-            const printFile = new File([printBlob], window.getPrintFileName(), { type: 'image/png' });
-            if (printFile.size > 50 * 1024 * 1024) {
-              throw new Error('Print file over 50MB');
-            }
-            filesToUpload.unshift({ file: printFile, label: 'PRINT FILE — 300 DPI, ready to print' });
-          } catch (printErr) {
-            console.warn('Could not build print file:', printErr);
-            fields['Print File'] = 'Could not be generated automatically. Build from the original designs and layout below.';
-          }
-          btn.textContent = 'Sending…';
-        }
-
-        if (typeof window.exportSheetLayout === 'function') {
-          try {
-            const dataUrl = window.exportSheetLayout();
-            if (dataUrl) {
-              const blob = await fetch(dataUrl).then(function (r) { return r.blob(); });
-              const layoutFile = new File(
-                [blob],
-                'gang-sheet-preview-' + Date.now() + '.png',
-                { type: 'image/png' }
-              );
-              filesToUpload.push({ file: layoutFile, label: 'Layout preview (small, for reference only)' });
-            }
-          } catch (layoutErr) {
-            console.warn('Could not export layout PNG:', layoutErr);
-          }
-        }
-
-        await window.YMP.submitInquiry({
-          formType: 'Gang Sheet Order',
-          subject: fd.get('_subject') || 'New Gang Sheet Quote — YMPRESSME',
-          fields,
-          files: filesToUpload,
-          replyTo: fd.get('Email') || null,
-          honeypot: fd.get('_gotcha') || '',
+        const notes = document.getElementById('gsNotes').value.trim();
+        addItem(variant.id, qty, { title: 'DTF Gang Sheet', label: sheet.label }, {
+          url: printUrl,
+          name: name,
+          preview_url: previewUrl,
+          note: ('Layout approved by customer. ' + notes).trim(),
         });
 
-        document.getElementById('gsFormSuccess').classList.remove('hidden');
-        document.getElementById('gsFormError').classList.add('hidden');
-        this.reset();
         if (typeof window.clearBuilderUploads === 'function') window.clearBuilderUploads();
-        document.getElementById('layoutReadyAlert').style.display = 'none';
-        showToast('Gang sheet order submitted! It\'s headed to print.', 'success');
+        window.location.href = 'cart.html';
       } catch (err) {
         console.error(err);
-        document.getElementById('gsFormError').classList.remove('hidden');
-        showToast('Submission failed. Please try again.', 'error');
-      } finally {
-        btn.textContent = 'Submit Gang Sheet Order'; btn.disabled = false;
+        fail(err.message || 'Something went wrong. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Add to Cart & Check Out';
       }
     });
   </script>

@@ -50,6 +50,7 @@
       <li><a href="faq.html">FAQ</a></li>
       <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
       <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li><a href="account.html">My Account</a></li>
       <li class="mob-cta"><a href="cart.html">Cart</a></li>
     </ul>
   </div>
@@ -62,6 +63,7 @@
         <p class="mb-4">
           Your payment went through and a receipt is on its way to your email.
           We'll start on your order right away.
+          <br /><a href="account.html">View your orders</a>
         </p>
         <div id="artworkNote" class="artwork-note hidden" style="text-align:left">
           <strong>One more step &mdash; we need your artwork.</strong>
@@ -100,6 +102,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
+            <li><a href="account.html">My Account</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -118,11 +121,50 @@
 
   <script type="module">
     import { clearCart } from './js/cart.js';
+    import { SITE_CONFIG } from './js/site-config.js';
     // Stripe redirected here, so the payment completed. The webhook records the
-    // order server-side — this page is only a receipt for the human.
+    // order server-side; this page shows the receipt and emails the order to
+    // the shop with the print-file links.
     clearCart();
-    if (new URLSearchParams(location.search).get('artwork') === '1') {
+    const qs = new URLSearchParams(location.search);
+    if (qs.get('artwork') === '1') {
       document.getElementById('artworkNote').classList.remove('hidden');
+    }
+
+    const sid = qs.get('session_id');
+    const sentKey = 'ymp_order_emailed_' + sid;
+    let alreadySent = false;
+    try { alreadySent = !!localStorage.getItem(sentKey); } catch {}
+
+    if (sid && !alreadySent) {
+      try {
+        const r = await fetch('/api/order-summary?session_id=' + encodeURIComponent(sid));
+        if (r.ok) {
+          const o = await r.json();
+          const fd = new FormData();
+          fd.append('access_key', SITE_CONFIG.web3formsAccessKey);
+          fd.append('subject', `NEW PAID ORDER #${o.order_ref} — ${o.items.length} item(s) — ${SITE_CONFIG.brandName}`);
+          fd.append('from_name', SITE_CONFIG.fromName);
+          if (o.email) fd.append('email', o.email);
+          fd.append('Status', 'PAID — ready to print');
+          fd.append('Order', '#' + o.order_ref);
+          fd.append('Customer', o.name);
+          fd.append('Customer Email', o.email);
+          if (o.phone) fd.append('Customer Phone', o.phone);
+          fd.append('Ship To', o.ship_to || 'See Stripe');
+          fd.append('Total Paid', '$' + o.total.toFixed(2) + ' (incl. $' + o.shipping.toFixed(2) + ' shipping)');
+          o.items.forEach((it, i) => {
+            const n = i + 1;
+            fd.append(`Item ${n}`, `${it.quantity} × ${it.title}${it.details ? ' — ' + it.details : ''}`);
+            if (it.artwork_url) fd.append(`Item ${n} PRINT FILE`, it.artwork_url);
+            if (it.note) fd.append(`Item ${n} Notes`, it.note);
+          });
+          const sent = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: fd });
+          if (sent.ok) { try { localStorage.setItem(sentKey, '1'); } catch {} }
+        }
+      } catch (err) {
+        console.warn('Order email not sent:', err);   // Stripe still has the order + files
+      }
     }
   </script>
 </body>

@@ -50,6 +50,7 @@
       <li><a href="faq.html">FAQ</a></li>
       <li class="mob-cta"><a href="contact.html#contactUploadArea">↑ Upload Design</a></li>
       <li class="mob-cta"><a href="contact.html">Get a Quote</a></li>
+      <li><a href="account.html">My Account</a></li>
       <li class="mob-cta"><a href="cart.html">Cart</a></li>
     </ul>
   </div>
@@ -90,6 +91,7 @@
             <li><a href="about.html">About Us</a></li>
             <li><a href="faq.html">FAQ</a></li>
             <li><a href="contact.html">Contact</a></li>
+            <li><a href="account.html">My Account</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -109,6 +111,7 @@
   <script type="module">
     import { getVariants, money, esc } from './js/store.js';
     import { getCart, setQuantity, checkout } from './js/cart.js';
+    import { shippingFor } from './js/shipping.js';
 
     const body = document.getElementById('cartBody');
 
@@ -133,14 +136,16 @@
 
       const byId = new Map(rows.map(r => [r.id, r]));
       let subtotal = 0;
-      let artwork  = false;
+      let units    = 0;
       const html = [];
 
       for (const item of cart) {
         const v = byId.get(item.variant_id);
         if (!v) continue;                              // vanished from catalog
         const p    = v.products || {};
-        const img  = (p.product_images || []).sort((a,b)=>a.position-b.position)[0]?.src;
+        const art  = item.artwork || null;
+        const img  = art?.preview_url || (p.product_images || []).sort((a,b)=>a.position-b.position)[0]?.src;
+        units     += item.quantity;
         const opts = [v.option1, v.option2, v.option3].filter(Boolean).join(' / ');
         subtotal  += v.price_cents * item.quantity;
 
@@ -149,12 +154,13 @@
           <div>
             <div class="cr-title">${esc(p.title || 'Item')}</div>
             ${opts ? `<div class="cr-opts">${esc(opts)}</div>` : ''}
+            ${art ? `<div class="cr-opts">Your design: <a href="${esc(art.url)}" target="_blank" rel="noopener">${esc(art.name || 'artwork')}</a></div>` : ''}
             <div class="mt-2">
               <label class="cr-opts">Qty
                 <input type="number" min="0" max="500" value="${item.quantity}"
-                       data-qty="${esc(v.id)}" style="width:62px" />
+                       data-qty="${esc(item.key)}" style="width:62px" />
               </label>
-              <button class="cart-link" data-remove="${esc(v.id)}">Remove</button>
+              <button class="cart-link" data-remove="${esc(item.key)}">Remove</button>
             </div>
           </div>
           <div style="text-align:right">
@@ -167,12 +173,13 @@
       body.innerHTML = html.join('') + `
         <div class="cart-summary">
           <div class="cs-line"><span>Subtotal</span><span>${money(subtotal)}</span></div>
-          <div class="cs-line"><span>Shipping</span><span>Calculated at checkout</span></div>
-          <div class="cs-total"><span>Total</span><span>${money(subtotal)}+</span></div>
+          <div class="cs-line"><span>Shipping</span><span>${money(shippingFor(units).cents)}</span></div>
+          <div class="cs-total"><span>Total</span><span>${money(subtotal + shippingFor(units).cents)}</span></div>
           <button class="btn btn-primary btn-lg btn-full mt-3" id="checkoutBtn">Checkout</button>
           <p class="form-hint mt-2" style="text-align:center">
-            Secure payment by Stripe. Final total including shipping shown before you pay.
+            Secure payment by Stripe. Tax, if any, is added at checkout.
           </p>
+          <p class="form-hint" style="text-align:center"><a href="account.html">Sign in</a> to use your saved details and reorder later.</p>
           <p id="cartMsg" class="form-error" role="status" aria-live="polite"></p>
         </div>`;
 
