@@ -1079,38 +1079,29 @@
     }
   };
 
-  /* ---- Export the full sheet as a print-ready 300 DPI PNG ---- */
-  window.exportSheet300DPI = function () {
-    const sheet = SHEETS[currentSheet];
-    const DPI = 300;
-    const c = document.createElement('canvas');
-    c.width  = Math.round(sheet.w * DPI);
-    c.height = Math.round(sheet.h * DPI);
-    const cx = c.getContext('2d');
-
-    // Background: if a color is set, fill. Otherwise leave transparent.
-    if (bgColor) {
-      cx.fillStyle = bgColor;
-      cx.fillRect(0, 0, c.width, c.height);
-    }
-
-    // Draw each design at 300 DPI
+  /* ---- Draw every design onto a 2D context at `dpi`, shifted up by
+     `offsetYpx` (used to render one horizontal strip at a time). ---- */
+  function drawDesignsAt(cx, dpi, offsetYpx, stripHpx) {
     designs.forEach(function (d) {
-      const px = d.x * DPI;
-      const py = d.y * DPI;
-      const pw = d.w * DPI;
-      const ph = d.h * DPI;
+      const px = d.x * dpi;
+      const py = d.y * dpi - offsetYpx;
+      const pw = d.w * dpi;
+      const ph = d.h * dpi;
+      // Skip designs that don't touch this strip (rotation can only reach
+      // as far as the bounding circle, so pad by the diagonal)
+      const pad = Math.max(pw, ph);
+      if (py + ph + pad < 0 || py - pad > stripHpx) return;
       const rot = d.rotation || 0;
 
       if (d.type === 'text') {
         cx.save();
         const style = d.fontStyle === 'italic' ? 'italic ' : '';
-        cx.font = style + (d.fontWeight || 700) + ' ' + (d.fontSize * DPI) + 'px ' + d.fontFamily;
+        cx.font = style + (d.fontWeight || 700) + ' ' + (d.fontSize * dpi) + 'px ' + d.fontFamily;
         cx.fillStyle = d.color;
         cx.textBaseline = 'alphabetic';
         cx.textAlign    = 'left';
-        const ascentPx = (d.ascent || (d.h * 0.78)) * DPI;
-        const bbLeftPx = (d.bbLeft || 0) * DPI;
+        const ascentPx = (d.ascent || (d.h * 0.78)) * dpi;
+        const bbLeftPx = (d.bbLeft || 0) * dpi;
         if (rot !== 0) {
           cx.translate(px + pw / 2, py + ph / 2);
           cx.rotate(rot * Math.PI / 180);
@@ -1122,7 +1113,6 @@
         return;
       }
 
-      // Image design
       const upload = uploads.find(function (u) { return u.id === d.uploadId; });
       if (!upload || !upload.image) return;
       cx.save();
@@ -1135,9 +1125,105 @@
       }
       cx.restore();
     });
+  }
 
-    const sizeLabel = sheet.label.replace(/[^0-9x]/g, '');
-    triggerDownload(c.toDataURL('image/png'), 'gang-sheet-' + sizeLabel + '-300dpi.png');
+  /* ---- Minimal streaming PNG writer (RGBA, 8-bit) ----
+     Browsers can't hold a canvas taller than ~16k px, and an 18"×240"
+     sheet at 300 DPI is 72,000 px tall. So we render the sheet in strips
+     and stream the rows through deflate into one PNG file. */
+  const CRC_TABLE = (function () {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytesList) {
+    let c = 0xFFFFFFFF;
+    bytesList.forEach(function (b) {
+      for (let i = 0; i < b.length; i++) c = CRC_TABLE[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+    });
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  function u32(n) { return new Uint8Array([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255]); }
+  function pngChunk(type, data) {
+    const typeBytes = new Uint8Array([type.charCodeAt(0), type.charCodeAt(1), type.charCodeAt(2), type.charCodeAt(3)]);
+    return [u32(data.length), typeBytes, data, u32(crc32([typeBytes, data]))];
+  }
+
+  /* Build the print-ready PNG for the current sheet. Resolves to a Blob.
+     onProgress(0..1) is called as strips finish. */
+  window.buildPrintFile = async function (onProgress, dpi) {
+    if (typeof window.pako === 'undefined' || !window.pako.Deflate) {
+      throw new Error('Print-file encoder not loaded');
+    }
+    dpi = dpi || 300;
+    const sheet = SHEETS[currentSheet];
+    const W = Math.round(sheet.w * dpi);
+    const H = Math.round(sheet.h * dpi);
+    const STRIP = 1024;                         // rows per strip
+    const strip = document.createElement('canvas');
+    strip.width = W;
+    const sx = strip.getContext('2d', { willReadFrequently: true });
+
+    const parts = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])];
+    const ihdr = new Uint8Array(13);
+    ihdr.set(u32(W), 0); ihdr.set(u32(H), 4);
+    ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0;   // 8-bit RGBA
+    Array.prototype.push.apply(parts, pngChunk('IHDR', ihdr));
+    const ppm = Math.round(dpi / 0.0254);       // tag the file as 300 DPI
+    const phys = new Uint8Array(9);
+    phys.set(u32(ppm), 0); phys.set(u32(ppm), 4); phys[8] = 1;
+    Array.prototype.push.apply(parts, pngChunk('pHYs', phys));
+
+    const deflate = new window.pako.Deflate({ level: 6 });
+    deflate.onData = function (chunk) {
+      Array.prototype.push.apply(parts, pngChunk('IDAT', new Uint8Array(chunk)));
+    };
+
+    for (let y0 = 0; y0 < H; y0 += STRIP) {
+      const h = Math.min(STRIP, H - y0);
+      strip.height = h;                           // also clears the strip
+      if (bgColor) { sx.fillStyle = bgColor; sx.fillRect(0, 0, W, h); }
+      drawDesignsAt(sx, dpi, y0, h);
+      const px = sx.getImageData(0, 0, W, h).data;
+      const rowLen = W * 4;
+      const raw = new Uint8Array(h * (rowLen + 1)); // filter byte 0 + row
+      for (let r = 0; r < h; r++) {
+        raw.set(px.subarray(r * rowLen, (r + 1) * rowLen), r * (rowLen + 1) + 1);
+      }
+      deflate.push(raw, y0 + h >= H);
+      if (onProgress) onProgress((y0 + h) / H);
+      await new Promise(function (res) { setTimeout(res, 0); });  // keep the page responsive
+    }
+    if (deflate.err) throw new Error('PNG encode failed: ' + deflate.msg);
+    Array.prototype.push.apply(parts, pngChunk('IEND', new Uint8Array(0)));
+    return new Blob(parts, { type: 'image/png' });
+  };
+
+  window.getPrintFileName = function () {
+    const sheet = SHEETS[currentSheet];
+    return 'gang-sheet-' + sheet.w + 'x' + sheet.h + '-300dpi.png';
+  };
+
+  /* ---- Export the full sheet as a print-ready 300 DPI PNG ---- */
+  window.exportSheet300DPI = async function () {
+    if (designs.length === 0) {
+      window.showToast && window.showToast('Add a design to the sheet first.', 'info');
+      return;
+    }
+    window.showToast && window.showToast('Building your 300 DPI print file…', 'info');
+    try {
+      const blob = await window.buildPrintFile();
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, window.getPrintFileName());
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+    } catch (err) {
+      console.error(err);
+      window.showToast && window.showToast('Could not build the print file. Please try again.', 'error');
+    }
   };
 
   /* ---- Toolbar buttons ---- */

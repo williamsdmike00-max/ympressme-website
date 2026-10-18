@@ -1022,7 +1022,8 @@
     </div>
   </div>
 
-  <script src="js/gang-sheet-builder.js?v=14"></script>
+  <script src="js/vendor/pako_deflate.min.js"></script>
+  <script src="js/gang-sheet-builder.js?v=15"></script>
   <script type="module" src="js/inquiry-submit.js"></script>
   <script>
     document.getElementById('footerYear').textContent = new Date().getFullYear();
@@ -1431,7 +1432,7 @@
         const fields = {};
         for (const [k, v] of fd.entries()) {
           if (k === '_subject' || k === '_gotcha') continue;
-          if (v) fields[k] = v;
+          if (v && typeof v === 'string') fields[k] = v;   // skip File objects
         }
 
         const builderFiles = (typeof window.getBuilderUploads === 'function')
@@ -1453,6 +1454,24 @@
           })
         );
 
+        // Print-ready 300 DPI sheet — this is the file that goes to the printer
+        if (typeof window.buildPrintFile === 'function') {
+          try {
+            const printBlob = await window.buildPrintFile(function (pct) {
+              btn.textContent = 'Preparing print file… ' + Math.round(pct * 100) + '%';
+            });
+            const printFile = new File([printBlob], window.getPrintFileName(), { type: 'image/png' });
+            if (printFile.size > 50 * 1024 * 1024) {
+              throw new Error('Print file over 50MB');
+            }
+            filesToUpload.unshift({ file: printFile, label: 'PRINT FILE — 300 DPI, ready to print' });
+          } catch (printErr) {
+            console.warn('Could not build print file:', printErr);
+            fields['Print File'] = 'Could not be generated automatically. Build from the original designs and layout below.';
+          }
+          btn.textContent = 'Sending…';
+        }
+
         if (typeof window.exportSheetLayout === 'function') {
           try {
             const dataUrl = window.exportSheetLayout();
@@ -1460,10 +1479,10 @@
               const blob = await fetch(dataUrl).then(function (r) { return r.blob(); });
               const layoutFile = new File(
                 [blob],
-                'gang-sheet-layout-' + Date.now() + '.png',
+                'gang-sheet-preview-' + Date.now() + '.png',
                 { type: 'image/png' }
               );
-              filesToUpload.push({ file: layoutFile, label: 'Layout Visual (auto-generated)' });
+              filesToUpload.push({ file: layoutFile, label: 'Layout preview (small, for reference only)' });
             }
           } catch (layoutErr) {
             console.warn('Could not export layout PNG:', layoutErr);
