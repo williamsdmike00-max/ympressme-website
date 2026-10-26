@@ -24,7 +24,7 @@ const DTF_PRICES = [
   { key: '10.5', label: '10.5"', price: 5.25 },
   { key: '11',   label: '11"',   price: 5.75 },
   { key: '11.5', label: '11.5"', price: 6.25 },
-  { key: '12',   label: '12"',   price: 6.50 },
+  { key: '12',   label: '12"',   price: 6.25 },
   { key: '12.5', label: '12.5"', price: 6.50 },
   { key: '13',   label: '13"',   price: 6.75 },
   { key: '14',   label: '14"',   price: 7.25 },
