@@ -156,7 +156,12 @@
           o.items.forEach((it, i) => {
             const n = i + 1;
             fd.append(`Item ${n}`, `${it.quantity} × ${it.title}${it.details ? ' — ' + it.details : ''}`);
-            if (it.artwork_url) fd.append(`Item ${n} PRINT FILE`, it.artwork_url);
+            if (it.artwork_url) {
+              // Short link on our own domain: fits one line, so mail apps
+              // (Yahoo, Gmail, iPhone Mail) turn it into a tappable link.
+              const m = it.artwork_url.match(/\/orders\/(\d+-[a-z0-9]+)-/);
+              fd.append(`Item ${n} PRINT FILE`, m ? `${location.origin}/f/${m[1]}` : it.artwork_url);
+            }
             if (it.note) fd.append(`Item ${n} Notes`, it.note);
           });
           const sent = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: fd });

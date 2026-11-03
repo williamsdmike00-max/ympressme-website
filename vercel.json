@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/f/:key", "destination": "/api/file?k=:key" }
+  ]
+}
